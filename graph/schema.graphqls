@@ -1,0 +1,73 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type LoginResponse {
+  id: ID!
+  token: String!
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  address: String!
+  occupation: String!
+}
+
+type Event {
+  id: ID!
+  userID: Int
+  image: String!
+  title: String!
+  description: String!
+  location: String!
+  date: Time!
+}
+
+type Comment {
+  id: ID!
+  userID: Int!
+  eventID: Int!
+  content: String!
+}
+
+type Participant {
+  id: ID!
+  eventID: Int!
+  userID: Int!
+}
+
+input NewUser {
+  name: String!
+  email: String!
+  password: String!
+  address: String!
+  occupation: String!
+}
+
+type Query {
+  login(email: String!, password: String!): LoginResponse!
+
+  getProfile: User!
+  getProfileEvent: [Event]!
+
+  getUsers: [User]!
+  getUser(id: Int!): User!
+
+  getEvents: [Event]!
+  getEvent(id: Int!): Event!
+  getEventKeyword(keyword: String!): Event!
+  getEventLocation(location: String!): Event!
+
+  getComments(eventID: Int!): [Comment]!
+
+  getParticipants(eventID: Int!): [Participant]!
+}
+
+type Mutation {
+  register(input: NewUser): User!
+}
+
+scalar Time
