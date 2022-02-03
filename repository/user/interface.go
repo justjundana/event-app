@@ -5,5 +5,6 @@ import (
 )
 
 type UserInterface interface {
+	Create(user _models.User) (_models.User, error)
 	Login(email string, password string) (_models.User, error)
 }
