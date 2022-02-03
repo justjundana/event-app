@@ -33,3 +33,16 @@ func (r *UserRepository) Login(email string) (_models.User, error) {
 
 	return user, nil
 }
+
+func (r *UserRepository) Profile(id int) (_models.User, error) {
+	row := r.db.QueryRow(`SELECT id, name, email, password, address, occupation, phone FROM users WHERE id = ?;`, id)
+
+	var user _models.User
+
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Address, &user.Occupation, &user.Phone)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
