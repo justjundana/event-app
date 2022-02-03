@@ -209,7 +209,23 @@ func (r *queryResolver) GetEventLocation(ctx context.Context, location string) (
 }
 
 func (r *queryResolver) GetComments(ctx context.Context, eventID int) ([]*_models.Comment, error) {
-	panic(fmt.Errorf("not implemented"))
+	commentResponseData := []*_models.Comment{}
+
+	responseData, err := r.commentRepository.GetComments(eventID)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, v := range responseData {
+		commentResponseData = append(commentResponseData, &_models.Comment{
+			ID:      v.ID,
+			EventID: v.EventID,
+			UserID:  v.UserID,
+			Content: v.Content,
+		})
+	}
+
+	return commentResponseData, nil
 }
 
 func (r *queryResolver) GetParticipants(ctx context.Context, eventID int) ([]*_models.Participant, error) {
