@@ -52,3 +52,16 @@ func (r *EventRepository) GetById(id int) (_models.Event, error) {
 
 	return event, nil
 }
+
+func (r *EventRepository) GetByKey(keyword string) (_models.Event, error) {
+	var event _models.Event
+
+	row := r.db.QueryRow(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE title LIKE '?%' OR '%?'`, keyword, keyword)
+
+	err := row.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+	if err != nil {
+		return event, err
+	}
+
+	return event, nil
+}
