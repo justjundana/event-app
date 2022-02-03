@@ -130,7 +130,12 @@ func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) (*_
 }
 
 func (r *queryResolver) GetEventLocation(ctx context.Context, location string) (*_models.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	responseData, err := r.eventRepository.GetByLocation(location)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	return &responseData, nil
 }
 
 func (r *queryResolver) GetComments(ctx context.Context, eventID int) ([]*_models.Comment, error) {
