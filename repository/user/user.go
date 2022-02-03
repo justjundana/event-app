@@ -21,8 +21,8 @@ func (r *UserRepository) Create(user _models.User) (_models.User, error) {
 	return user, err
 }
 
-func (ur *UserRepository) Login(email string, password string) (_models.User, error) {
-	row := ur.db.QueryRow(`SELECT id, email, password FROM users WHERE email = ? AND password = ?`, email, password)
+func (r *UserRepository) Login(email string) (_models.User, error) {
+	row := r.db.QueryRow(`SELECT id, email, password FROM users WHERE email = ?;`, email)
 
 	var user _models.User
 
