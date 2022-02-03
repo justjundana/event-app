@@ -72,7 +72,33 @@ func (r *queryResolver) GetProfile(ctx context.Context) (*_models.User, error) {
 }
 
 func (r *queryResolver) GetProfileEvent(ctx context.Context) ([]*_models.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return []*_models.Event{}, errors.New("unauthorized")
+	}
+
+	eventResponseData := []*_models.Event{}
+
+	responseData, err := r.eventRepository.GetEventUser(userId.ID)
+
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, v := range responseData {
+		eventResponseData = append(eventResponseData, &_models.Event{
+			ID:          v.ID,
+			UserID:      v.UserID,
+			Image:       v.Image,
+			Title:       v.Title,
+			Description: v.Description,
+			Location:    v.Location,
+			Date:        v.Date,
+			Quota:       v.Quota,
+		})
+	}
+
+	return eventResponseData, nil
 }
 
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
