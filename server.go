@@ -15,13 +15,19 @@ import (
 	_eventRepository "github.com/justjundana/event-planner/repository/event"
 	_participantRepository "github.com/justjundana/event-planner/repository/participant"
 	_userRepository "github.com/justjundana/event-planner/repository/user"
+	cors "github.com/rs/cors"
 )
 
 func main() {
 	db := _config.FetchConnection()
 
 	router := chi.NewRouter()
+	corsOptions := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
+	})
 
+	router.Use(corsOptions.Handler)
 	userRepo := _userRepository.New(db)
 	evenRepo := _eventRepository.New(db)
 	participantRepo := _participantRepository.New(db)
