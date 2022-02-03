@@ -96,3 +96,26 @@ func (r *EventRepository) GetByLocation(location string) ([]_models.Event, error
 
 	return events, nil
 }
+
+func (r *EventRepository) GetEventUser(userID int) ([]_models.Event, error) {
+	var events []_models.Event
+	rows, err := r.db.Query(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE user_id = ?`, userID)
+	if err != nil {
+		log.Fatalf("Error")
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event _models.Event
+
+		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
+		if err != nil {
+			log.Fatalf("Error")
+		}
+
+		events = append(events, event)
+	}
+
+	return events, nil
+}

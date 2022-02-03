@@ -7,4 +7,5 @@ type EventInterface interface {
 	GetById(id int) (_models.Event, error)
 	GetByKey(keyword string) ([]_models.Event, error)
 	GetByLocation(location string) ([]_models.Event, error)
+	GetEventUser(userID int) ([]_models.Event, error)
 }
