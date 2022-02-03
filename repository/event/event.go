@@ -39,3 +39,16 @@ func (r *EventRepository) Get() ([]_models.Event, error) {
 
 	return events, nil
 }
+
+func (r *EventRepository) GetById(id int) (_models.Event, error) {
+	var event _models.Event
+
+	row := r.db.QueryRow(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE id = ?`, id)
+
+	err := row.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+	if err != nil {
+		return event, err
+	}
+
+	return event, nil
+}
