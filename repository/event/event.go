@@ -29,7 +29,7 @@ func (r *EventRepository) Get() ([]_models.Event, error) {
 	for rows.Next() {
 		var event _models.Event
 
-		err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+		err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
 		if err != nil {
 			log.Fatalf("Error")
 		}
@@ -45,7 +45,7 @@ func (r *EventRepository) GetById(id int) (_models.Event, error) {
 
 	row := r.db.QueryRow(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE id = ?`, id)
 
-	err := row.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+	err := row.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
 	if err != nil {
 		return event, err
 	}
@@ -64,7 +64,7 @@ func (r *EventRepository) GetByKey(keyword string) ([]_models.Event, error) {
 	for rows.Next() {
 		var event _models.Event
 
-		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
 		if err != nil {
 			log.Fatalf("Error")
 		}
@@ -86,7 +86,7 @@ func (r *EventRepository) GetByLocation(location string) ([]_models.Event, error
 	for rows.Next() {
 		var event _models.Event
 
-		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
 		if err != nil {
 			log.Fatalf("Error")
 		}

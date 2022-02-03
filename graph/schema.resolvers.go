@@ -16,10 +16,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (r *eventResolver) Quota(ctx context.Context, obj *_models.Event) (int, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
 func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
 	userData := _models.User{}
 	userData.Name = input.Name
@@ -104,7 +100,7 @@ func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error)
 			Description: v.Description,
 			Location:    v.Location,
 			Date:        v.Date,
-			Quote:       v.Quote,
+			Quota:       v.Quota,
 		})
 	}
 
@@ -137,7 +133,7 @@ func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) ([]
 			Description: v.Description,
 			Location:    v.Location,
 			Date:        v.Date,
-			Quote:       v.Quote,
+			Quota:       v.Quota,
 		})
 	}
 
@@ -164,7 +160,7 @@ func (r *queryResolver) GetEventLocation(ctx context.Context, location string) (
 			Description: v.Description,
 			Location:    v.Location,
 			Date:        v.Date,
-			Quote:       v.Quote,
+			Quota:       v.Quota,
 		})
 	}
 
@@ -179,15 +175,11 @@ func (r *queryResolver) GetParticipants(ctx context.Context, eventID int) ([]*_m
 	panic(fmt.Errorf("not implemented"))
 }
 
-// Event returns _generated.EventResolver implementation.
-func (r *Resolver) Event() _generated.EventResolver { return &eventResolver{r} }
-
 // Mutation returns _generated.MutationResolver implementation.
 func (r *Resolver) Mutation() _generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns _generated.QueryResolver implementation.
 func (r *Resolver) Query() _generated.QueryResolver { return &queryResolver{r} }
 
-type eventResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
