@@ -7,4 +7,5 @@ type User struct {
 	Password   string `json:"password" form:"password"`
 	Address    string `json:"address" form:"address"`
 	Occupation string `json:"occupation" form:"occupation"`
+	Phone      string `json:"phone" form:"phone"`
 }

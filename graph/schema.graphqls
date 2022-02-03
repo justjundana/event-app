@@ -14,6 +14,7 @@ type User {
   password: String!
   address: String!
   occupation: String!
+  phone: String!
 }
 
 type Event {
@@ -24,6 +25,7 @@ type Event {
   description: String!
   location: String!
   date: Time!
+  quota: Int!
 }
 
 type Comment {
