@@ -53,28 +53,46 @@ func (r *EventRepository) GetById(id int) (_models.Event, error) {
 	return event, nil
 }
 
-func (r *EventRepository) GetByKey(keyword string) (_models.Event, error) {
-	var event _models.Event
-
-	row := r.db.QueryRow(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE title LIKE '?%' OR '%?'`, keyword, keyword)
-
-	err := row.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+func (r *EventRepository) GetByKey(keyword string) ([]_models.Event, error) {
+	var events []_models.Event
+	rows, err := r.db.Query(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE title LIKE ? `, "%"+keyword+"%")
 	if err != nil {
-		return event, err
+		log.Fatalf("Error")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event _models.Event
+
+		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+		if err != nil {
+			log.Fatalf("Error")
+		}
+
+		events = append(events, event)
 	}
 
-	return event, nil
+	return events, nil
 }
 
-func (r *EventRepository) GetByLocation(location string) (_models.Event, error) {
-	var event _models.Event
-
-	row := r.db.QueryRow(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE location LIKE '?%' OR '%?'`, location, location)
-
-	err := row.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+func (r *EventRepository) GetByLocation(location string) ([]_models.Event, error) {
+	var events []_models.Event
+	rows, err := r.db.Query(`SELECT id, user_id, image, title, description, location, date, quota FROM events WHERE location LIKE ?`, "%"+location+"%")
 	if err != nil {
-		return event, err
+		log.Fatalf("Error")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event _models.Event
+
+		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quote)
+		if err != nil {
+			log.Fatalf("Error")
+		}
+
+		events = append(events, event)
 	}
 
-	return event, nil
+	return events, nil
 }
