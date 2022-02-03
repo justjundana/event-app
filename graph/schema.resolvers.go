@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -15,8 +16,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
+func (r *eventResolver) Quota(ctx context.Context, obj *_models.Event) (int, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 
+func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
 	userData := _models.User{}
 	userData.Name = input.Name
 	userData.Email = input.Email
@@ -48,7 +52,27 @@ func (r *queryResolver) Login(ctx context.Context, email string, password string
 }
 
 func (r *queryResolver) GetProfile(ctx context.Context) (*_models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_models.User{}, errors.New("unauthorized")
+	}
+
+	responseData, err := r.userRepository.Profile(userId.ID)
+	if err != nil {
+		return &responseData, err
+	}
+
+	dataUser := _models.User{
+		ID:         responseData.ID,
+		Name:       responseData.Name,
+		Email:      responseData.Email,
+		Password:   responseData.Password,
+		Address:    responseData.Address,
+		Occupation: responseData.Occupation,
+		Phone:      responseData.Phone,
+	}
+
+	return &dataUser, nil
 }
 
 func (r *queryResolver) GetProfileEvent(ctx context.Context) ([]*_models.Event, error) {
@@ -87,11 +111,15 @@ func (r *queryResolver) GetParticipants(ctx context.Context, eventID int) ([]*_m
 	panic(fmt.Errorf("not implemented"))
 }
 
+// Event returns _generated.EventResolver implementation.
+func (r *Resolver) Event() _generated.EventResolver { return &eventResolver{r} }
+
 // Mutation returns _generated.MutationResolver implementation.
 func (r *Resolver) Mutation() _generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns _generated.QueryResolver implementation.
 func (r *Resolver) Query() _generated.QueryResolver { return &queryResolver{r} }
 
+type eventResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
