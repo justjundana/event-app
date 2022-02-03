@@ -75,6 +75,7 @@ type ComplexityRoot struct {
 	Participant struct {
 		EventID func(childComplexity int) int
 		ID      func(childComplexity int) int
+		Status  func(childComplexity int) int
 		UserID  func(childComplexity int) int
 	}
 
@@ -258,6 +259,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Participant.ID(childComplexity), true
+
+	case "Participant.Status":
+		if e.complexity.Participant.Status == nil {
+			break
+		}
+
+		return e.complexity.Participant.Status(childComplexity), true
 
 	case "Participant.userID":
 		if e.complexity.Participant.UserID == nil {
@@ -532,6 +540,7 @@ type Participant {
   id: ID!
   eventID: Int!
   userID: Int!
+  Status: Boolean!
 }
 
 input NewUser {
@@ -1387,6 +1396,41 @@ func (ec *executionContext) _Participant_userID(ctx context.Context, field graph
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Participant_Status(ctx context.Context, field graphql.CollectedField, obj *models.Participant) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Participant",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3597,6 +3641,16 @@ func (ec *executionContext) _Participant(ctx context.Context, sel ast.SelectionS
 		case "userID":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Participant_userID(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Status":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Participant_Status(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

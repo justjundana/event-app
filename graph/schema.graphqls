@@ -39,6 +39,7 @@ type Participant {
   id: ID!
   eventID: Int!
   userID: Int!
+  Status: Boolean!
 }
 
 input NewUser {
