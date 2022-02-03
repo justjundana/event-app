@@ -10,10 +10,21 @@ import (
 	_generated "github.com/justjundana/event-planner/graph/generated"
 	_model "github.com/justjundana/event-planner/graph/model"
 	_models "github.com/justjundana/event-planner/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+
+	userData := _models.User{}
+	userData.Name = input.Name
+	userData.Email = input.Email
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
+	userData.Password = string(passwordHash)
+	userData.Address = input.Address
+	userData.Occupation = input.Occupation
+
+	responseData, err := r.userRepository.Create(userData)
+	return &responseData, err
 }
 
 func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
