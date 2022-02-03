@@ -229,7 +229,23 @@ func (r *queryResolver) GetComments(ctx context.Context, eventID int) ([]*_model
 }
 
 func (r *queryResolver) GetParticipants(ctx context.Context, eventID int) ([]*_models.Participant, error) {
-	panic(fmt.Errorf("not implemented"))
+	participantResponseData := []*_models.Participant{}
+
+	responseData, err := r.participantRepository.GetParticipants(eventID)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, v := range responseData {
+		participantResponseData = append(participantResponseData, &_models.Participant{
+			ID:      v.ID,
+			EventID: v.EventID,
+			UserID:  v.UserID,
+			Status:  v.Status,
+		})
+	}
+
+	return participantResponseData, nil
 }
 
 // Mutation returns _generated.MutationResolver implementation.
