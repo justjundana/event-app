@@ -80,7 +80,22 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 }
 
 func (r *queryResolver) GetUser(ctx context.Context, id int) (*_models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	responseData, err := r.userRepository.Profile(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	dataUser := _models.User{
+		ID:         responseData.ID,
+		Name:       responseData.Name,
+		Email:      responseData.Email,
+		Password:   responseData.Password,
+		Address:    responseData.Address,
+		Occupation: responseData.Occupation,
+		Phone:      responseData.Phone,
+	}
+
+	return &dataUser, nil
 }
 
 func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error) {
