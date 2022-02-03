@@ -120,22 +120,55 @@ func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, e
 	return &responseData, nil
 }
 
-func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) (*_models.Event, error) {
+func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) ([]*_models.Event, error) {
+	// fmt.Println("jalan", keyword)
+	eventResponseData := []*_models.Event{}
 	responseData, err := r.eventRepository.GetByKey(keyword)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
+	// fmt.Println("respondata", responseData)
+	for _, v := range responseData {
+		eventResponseData = append(eventResponseData, &_models.Event{
+			ID:          v.ID,
+			UserID:      v.UserID,
+			Image:       v.Image,
+			Title:       v.Title,
+			Description: v.Description,
+			Location:    v.Location,
+			Date:        v.Date,
+			Quote:       v.Quote,
+		})
+	}
 
-	return &responseData, nil
+	return eventResponseData, nil
 }
 
-func (r *queryResolver) GetEventLocation(ctx context.Context, location string) (*_models.Event, error) {
+func (r *queryResolver) GetEventLocation(ctx context.Context, location string) ([]*_models.Event, error) {
+	eventResponseData := []*_models.Event{}
 	responseData, err := r.eventRepository.GetByLocation(location)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
-	return &responseData, nil
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, v := range responseData {
+		eventResponseData = append(eventResponseData, &_models.Event{
+			ID:          v.ID,
+			UserID:      v.UserID,
+			Image:       v.Image,
+			Title:       v.Title,
+			Description: v.Description,
+			Location:    v.Location,
+			Date:        v.Date,
+			Quote:       v.Quote,
+		})
+	}
+
+	return eventResponseData, nil
 }
 
 func (r *queryResolver) GetComments(ctx context.Context, eventID int) ([]*_models.Comment, error) {

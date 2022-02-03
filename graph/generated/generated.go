@@ -118,8 +118,8 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id int) (*models.User, error)
 	GetEvents(ctx context.Context) ([]*models.Event, error)
 	GetEvent(ctx context.Context, id int) (*models.Event, error)
-	GetEventKeyword(ctx context.Context, keyword string) (*models.Event, error)
-	GetEventLocation(ctx context.Context, location string) (*models.Event, error)
+	GetEventKeyword(ctx context.Context, keyword string) ([]*models.Event, error)
+	GetEventLocation(ctx context.Context, location string) ([]*models.Event, error)
 	GetComments(ctx context.Context, eventID int) ([]*models.Comment, error)
 	GetParticipants(ctx context.Context, eventID int) ([]*models.Participant, error)
 }
@@ -557,8 +557,8 @@ type Query {
 
   getEvents: [Event]!
   getEvent(id: Int!): Event!
-  getEventKeyword(keyword: String!): Event!
-  getEventLocation(location: String!): Event!
+  getEventKeyword(keyword: String!): [Event]!
+  getEventLocation(location: String!): [Event]!
 
   getComments(eventID: Int!): [Comment]!
 
@@ -1696,9 +1696,9 @@ func (ec *executionContext) _Query_getEventKeyword(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Event)
+	res := resTmp.([]*models.Event)
 	fc.Result = res
-	return ec.marshalNEvent2ᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getEventLocation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1738,9 +1738,9 @@ func (ec *executionContext) _Query_getEventLocation(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Event)
+	res := resTmp.([]*models.Event)
 	fc.Result = res
-	return ec.marshalNEvent2ᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getComments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
