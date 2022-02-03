@@ -121,7 +121,12 @@ func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, e
 }
 
 func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) (*_models.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	responseData, err := r.eventRepository.GetByKey(keyword)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	return &responseData, nil
 }
 
 func (r *queryResolver) GetEventLocation(ctx context.Context, location string) (*_models.Event, error) {
