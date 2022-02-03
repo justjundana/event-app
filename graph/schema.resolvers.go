@@ -6,9 +6,11 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	_generated "github.com/justjundana/event-planner/graph/generated"
 	_model "github.com/justjundana/event-planner/graph/model"
+	_middleware "github.com/justjundana/event-planner/middleware"
 	_models "github.com/justjundana/event-planner/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -28,7 +30,21 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 }
 
 func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+	var user _models.User
+
+	user, err := r.userRepository.Login(email)
+	if err != nil {
+		return &_model.LoginResponse{}, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+
+	token, _ := _middleware.AuthService().GenerateToken(user.ID)
+
+	return &_model.LoginResponse{
+		ID:    strconv.Itoa(user.ID),
+		Token: token,
+	}, err
 }
 
 func (r *queryResolver) GetProfile(ctx context.Context) (*_models.User, error) {
