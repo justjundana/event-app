@@ -88,7 +88,27 @@ func (r *queryResolver) GetUser(ctx context.Context, id int) (*_models.User, err
 }
 
 func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error) {
-	panic(fmt.Errorf("not implemented"))
+	eventResponseData := []*_models.Event{}
+
+	responseData, err := r.eventRepository.Get()
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, v := range responseData {
+		eventResponseData = append(eventResponseData, &_models.Event{
+			ID:          v.ID,
+			UserID:      v.UserID,
+			Image:       v.Image,
+			Title:       v.Title,
+			Description: v.Description,
+			Location:    v.Location,
+			Date:        v.Date,
+			Quote:       v.Quote,
+		})
+	}
+
+	return eventResponseData, nil
 }
 
 func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, error) {
