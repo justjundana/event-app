@@ -134,7 +134,23 @@ func (r *mutationResolver) DeleteEvent(ctx context.Context, id int) (*_model.Res
 }
 
 func (r *mutationResolver) CreateParticipant(ctx context.Context, input *_model.NewParticipant) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	checkParticipant, _ := r.participantRepository.CheckParticipant(userId.ID, input.EventID)
+	if checkParticipant.UserID > 0 {
+		return &_model.Response{Code: http.StatusForbidden, Message: "you have been registered in this event", Success: false}, nil
+	}
+
+	participant := _models.Participant{}
+	participant.EventID = input.EventID
+	participant.UserID = userId.ID
+	participant.Status = input.Status
+
+	createErr := r.participantRepository.CreateParticipant(participant)
+	return &_model.Response{Code: http.StatusOK, Message: "You have been successfully registered in this event", Success: true}, createErr
 }
 
 func (r *mutationResolver) UpdateParticipant(ctx context.Context, id int, input *_model.EditParticipant) (*_model.Response, error) {
