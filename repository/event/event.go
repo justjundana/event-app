@@ -140,5 +140,23 @@ func (r *EventRepository) UpdateEvent(event _models.Event) error {
 		return err
 	}
 
-	return err
+	return nil
+}
+
+func (r *EventRepository) DeleteEvent(event _models.Event) error {
+	query := `DELETE FROM events WHERE id = ?`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(event.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
