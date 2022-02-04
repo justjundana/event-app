@@ -115,7 +115,22 @@ func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_mode
 }
 
 func (r *mutationResolver) DeleteEvent(ctx context.Context, id int) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	event, err := r.eventRepository.GetEvent(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	if event.UserID != userId.ID {
+		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to delete this event", Success: false}, nil
+	}
+
+	deleteErr := r.eventRepository.DeleteEvent(event)
+	return &_model.Response{Code: http.StatusOK, Message: "Delete event Success", Success: true}, deleteErr
 }
 
 func (r *mutationResolver) CreateParticipant(ctx context.Context, input *_model.NewParticipant) (*_model.Response, error) {
