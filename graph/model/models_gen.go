@@ -7,8 +7,6 @@ import (
 )
 
 type EditComment struct {
-	UserID  *int    `json:"userID"`
-	EventID *int    `json:"eventID"`
 	Content *string `json:"content"`
 }
 
@@ -22,9 +20,7 @@ type EditEvent struct {
 }
 
 type EditParticipant struct {
-	UserID  *int  `json:"userID"`
-	EventID *int  `json:"eventID"`
-	Status  *bool `json:"Status"`
+	Status *bool `json:"status"`
 }
 
 type EditUser struct {

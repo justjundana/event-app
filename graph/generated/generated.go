@@ -769,9 +769,7 @@ input NewParticipant {
 }
 
 input EditParticipant {
-	userID: Int
-	eventID: Int
-	Status: Boolean
+	status: Boolean
 }
 
 input NewComment {
@@ -781,8 +779,6 @@ input NewComment {
 }
 
 input EditComment {
-	userID: Int
-	eventID: Int
 	content: String
 }
 
@@ -4300,22 +4296,6 @@ func (ec *executionContext) unmarshalInputEditComment(ctx context.Context, obj i
 
 	for k, v := range asMap {
 		switch k {
-		case "userID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-			it.UserID, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "eventID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventID"))
-			it.EventID, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "content":
 			var err error
 
@@ -4402,26 +4382,10 @@ func (ec *executionContext) unmarshalInputEditParticipant(ctx context.Context, o
 
 	for k, v := range asMap {
 		switch k {
-		case "userID":
+		case "status":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-			it.UserID, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "eventID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventID"))
-			it.EventID, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "Status":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Status"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
 			it.Status, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err

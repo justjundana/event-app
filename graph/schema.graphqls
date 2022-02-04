@@ -92,9 +92,7 @@ input NewParticipant {
 }
 
 input EditParticipant {
-	userID: Int
-	eventID: Int
-	Status: Boolean
+	status: Boolean
 }
 
 input NewComment {
@@ -104,8 +102,6 @@ input NewComment {
 }
 
 input EditComment {
-	userID: Int
-	eventID: Int
 	content: String
 }
 
