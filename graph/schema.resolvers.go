@@ -24,23 +24,26 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 	userData.Password = string(passwordHash)
 	userData.Address = input.Address
 	userData.Occupation = input.Occupation
+	userData.Phone = input.Phone
 
 	responseData, err := r.userRepository.Register(userData)
 	return &responseData, err
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model.EditUser) (*_model.Response, error) {
-	userId := _middleware.ForContext(ctx)
-	if userId == nil {
-		return &_model.Response{}, errors.New("unauthorized")
-	}
-
 	user, err := r.userRepository.Profile(id)
 	if err != nil {
+		fmt.Println("ini cek user ada", err)
 		return nil, errors.New("not found")
 	}
-
-	if userId != &user {
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		fmt.Println("ini cek user yg masuk", userId)
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+	fmt.Println("user", user)
+	fmt.Println("userId", *userId)
+	if user.ID != userId.ID {
 		return &_model.Response{Code: 400, Message: "You don't have permission", Success: false}, errors.New("unauthorized")
 	}
 
@@ -99,6 +102,7 @@ func (r *mutationResolver) DeleteComment(ctx context.Context, id int) (*_model.R
 func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
 	user, err := r.userRepository.Login(email)
 	if err != nil {
+		fmt.Println(err)
 		return nil, errors.New("not found")
 	}
 
