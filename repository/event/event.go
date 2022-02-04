@@ -124,3 +124,21 @@ func (r *EventRepository) CreateEvent(event _models.Event) error {
 	_, err := r.db.Exec("INSERT INTO events(user_id, image, title, description, location, date, quota) VALUES(?,?,?,?,?,?,?)", event.UserID, event.Image, event.Title, event.Description, event.Location, event.Date, event.Quota)
 	return err
 }
+
+func (r *EventRepository) UpdateEvent(event _models.Event) error {
+	query := `UPDATE events SET image = ?, title = ?, description = ?, location = ?, date = ?, quota = ? WHERE id = ?`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(event.Image, event.Title, event.Description, event.Location, event.Date, event.Quota, event.ID)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
