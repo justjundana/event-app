@@ -33,16 +33,13 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model.EditUser) (*_model.Response, error) {
 	user, err := r.userRepository.Profile(id)
 	if err != nil {
-		fmt.Println("ini cek user ada", err)
 		return nil, errors.New("not found")
 	}
 	userId := _middleware.ForContext(ctx)
 	if userId == nil {
-		fmt.Println("ini cek user yg masuk", userId)
 		return &_model.Response{}, errors.New("unauthorized")
 	}
-	fmt.Println("user", user)
-	fmt.Println("userId", *userId)
+
 	if user.ID != userId.ID {
 		return &_model.Response{Code: 400, Message: "You don't have permission", Success: false}, errors.New("unauthorized")
 	}
@@ -55,12 +52,27 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model
 	user.Occupation = *input.Occupation
 	user.Phone = *input.Phone
 
-	UpdateErr := r.userRepository.UpdateUser(user)
-	return &_model.Response{Code: 200, Message: "Update data Success", Success: true}, UpdateErr
+	updateErr := r.userRepository.UpdateUser(user)
+	return &_model.Response{Code: 200, Message: "Update data Success", Success: true}, updateErr
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	user, err := r.userRepository.Profile(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	if user.ID != userId.ID {
+		return &_model.Response{Code: 400, Message: "You don't have permission", Success: false}, errors.New("unauthorized")
+	}
+
+	deleteErr := r.userRepository.DeleteUser(user)
+	return &_model.Response{Code: 200, Message: "Delete data Success", Success: true}, deleteErr
 }
 
 func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEvent) (*_model.Response, error) {
