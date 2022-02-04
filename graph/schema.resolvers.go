@@ -30,7 +30,30 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model.EditUser) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	user, err := r.userRepository.Profile(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	if userId != &user {
+		return &_model.Response{Code: 400, Message: "You don't have permission", Success: false}, errors.New("unauthorized")
+	}
+
+	user.Name = *input.Name
+	user.Email = *input.Email
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.MinCost)
+	user.Password = string(passwordHash)
+	user.Address = *input.Address
+	user.Occupation = *input.Occupation
+	user.Phone = *input.Phone
+
+	UpdateErr := r.userRepository.UpdateUser(user)
+	return &_model.Response{Code: 200, Message: "Update data Success", Success: true}, UpdateErr
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (*_model.Response, error) {
