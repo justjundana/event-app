@@ -25,7 +25,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 	userData.Address = input.Address
 	userData.Occupation = input.Occupation
 
-	responseData, err := r.userRepository.Create(userData)
+	responseData, err := r.userRepository.Register(userData)
 	return &responseData, err
 }
 
@@ -71,36 +71,6 @@ func (r *queryResolver) GetProfile(ctx context.Context) (*_models.User, error) {
 	return &dataUser, nil
 }
 
-func (r *queryResolver) GetProfileEvent(ctx context.Context) ([]*_models.Event, error) {
-	userId := _middleware.ForContext(ctx)
-	if userId == nil {
-		return []*_models.Event{}, errors.New("unauthorized")
-	}
-
-	eventResponseData := []*_models.Event{}
-
-	responseData, err := r.eventRepository.GetEventUser(userId.ID)
-
-	if err != nil {
-		return nil, errors.New("not found")
-	}
-
-	for _, v := range responseData {
-		eventResponseData = append(eventResponseData, &_models.Event{
-			ID:          v.ID,
-			UserID:      v.UserID,
-			Image:       v.Image,
-			Title:       v.Title,
-			Description: v.Description,
-			Location:    v.Location,
-			Date:        v.Date,
-			Quota:       v.Quota,
-		})
-	}
-
-	return eventResponseData, nil
-}
-
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
@@ -124,10 +94,40 @@ func (r *queryResolver) GetUser(ctx context.Context, id int) (*_models.User, err
 	return &dataUser, nil
 }
 
+func (r *queryResolver) GetOwnEvent(ctx context.Context) ([]*_models.Event, error) {
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return []*_models.Event{}, errors.New("unauthorized")
+	}
+
+	eventResponseData := []*_models.Event{}
+
+	responseData, err := r.eventRepository.GetOwnEvent(userId.ID)
+
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, v := range responseData {
+		eventResponseData = append(eventResponseData, &_models.Event{
+			ID:          v.ID,
+			UserID:      v.UserID,
+			Image:       v.Image,
+			Title:       v.Title,
+			Description: v.Description,
+			Location:    v.Location,
+			Date:        v.Date,
+			Quota:       v.Quota,
+		})
+	}
+
+	return eventResponseData, nil
+}
+
 func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error) {
 	eventResponseData := []*_models.Event{}
 
-	responseData, err := r.eventRepository.Get()
+	responseData, err := r.eventRepository.GetEvents()
 	if err != nil {
 		return nil, errors.New("not found")
 	}
@@ -149,7 +149,7 @@ func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error)
 }
 
 func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, error) {
-	responseData, err := r.eventRepository.GetById(id)
+	responseData, err := r.eventRepository.GetEvent(id)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
@@ -157,10 +157,10 @@ func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, e
 	return &responseData, nil
 }
 
-func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) ([]*_models.Event, error) {
+func (r *queryResolver) GetEventKeyword(ctx context.Context, search string) ([]*_models.Event, error) {
 	// fmt.Println("jalan", keyword)
 	eventResponseData := []*_models.Event{}
-	responseData, err := r.eventRepository.GetByKey(keyword)
+	responseData, err := r.eventRepository.GetEventKeyword(search)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
@@ -181,9 +181,9 @@ func (r *queryResolver) GetEventKeyword(ctx context.Context, keyword string) ([]
 	return eventResponseData, nil
 }
 
-func (r *queryResolver) GetEventLocation(ctx context.Context, location string) ([]*_models.Event, error) {
+func (r *queryResolver) GetEventLocation(ctx context.Context, search string) ([]*_models.Event, error) {
 	eventResponseData := []*_models.Event{}
-	responseData, err := r.eventRepository.GetByLocation(location)
+	responseData, err := r.eventRepository.GetEventLocation(search)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
