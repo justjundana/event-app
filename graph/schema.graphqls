@@ -86,7 +86,6 @@ input EditEvent {
 }
 
 input NewParticipant {
-	userID: Int!
 	eventID: Int!
 	status: Boolean!
 }
@@ -96,9 +95,8 @@ input EditParticipant {
 }
 
 input NewComment {
-	userID: Int!
 	eventID: Int!
-	status: Boolean!
+	content: String!
 }
 
 input EditComment {

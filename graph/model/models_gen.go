@@ -38,9 +38,8 @@ type LoginResponse struct {
 }
 
 type NewComment struct {
-	UserID  int  `json:"userID"`
-	EventID int  `json:"eventID"`
-	Status  bool `json:"status"`
+	EventID int    `json:"eventID"`
+	Content string `json:"content"`
 }
 
 type NewEvent struct {
@@ -54,7 +53,6 @@ type NewEvent struct {
 }
 
 type NewParticipant struct {
-	UserID  int  `json:"userID"`
 	EventID int  `json:"eventID"`
 	Status  bool `json:"status"`
 }
