@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	_generated "github.com/justjundana/event-planner/graph/generated"
@@ -88,7 +89,29 @@ func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEve
 }
 
 func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_model.EditEvent) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	event, err := r.eventRepository.GetEvent(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	if event.UserID != userId.ID {
+		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to update this event", Success: false}, nil
+	}
+
+	event.Image = *input.Image
+	event.Title = *input.Title
+	event.Description = *input.Description
+	event.Location = *input.Location
+	event.Date = *input.Date
+	event.Quota = *input.Quota
+
+	updateErr := r.eventRepository.UpdateEvent(event)
+	return &_model.Response{Code: http.StatusOK, Message: "Update event Success", Success: true}, updateErr
 }
 
 func (r *mutationResolver) DeleteEvent(ctx context.Context, id int) (*_model.Response, error) {
