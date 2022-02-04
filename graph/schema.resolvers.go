@@ -161,7 +161,24 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input *_model.NewC
 }
 
 func (r *mutationResolver) UpdateComment(ctx context.Context, id int, input *_model.EditComment) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	comment, err := r.commentRepository.GetComment(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	if comment.UserID != userId.ID {
+		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to update this comment", Success: false}, nil
+	}
+
+	comment.Content = *input.Content
+
+	updateErr := r.commentRepository.UpdateComment(comment)
+	return &_model.Response{Code: http.StatusOK, Message: "Update comment Success", Success: true}, updateErr
 }
 
 func (r *mutationResolver) DeleteComment(ctx context.Context, id int) (*_model.Response, error) {
