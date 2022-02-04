@@ -77,7 +77,6 @@ input NewEvent {
 }
 
 input EditEvent {
-	userID: Int!
 	image: String
 	title: String
 	description: String

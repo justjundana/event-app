@@ -13,7 +13,6 @@ type EditComment struct {
 }
 
 type EditEvent struct {
-	UserID      int        `json:"userID"`
 	Image       *string    `json:"image"`
 	Title       *string    `json:"title"`
 	Description *string    `json:"description"`

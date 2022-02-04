@@ -754,7 +754,6 @@ input NewEvent {
 }
 
 input EditEvent {
-	userID: Int!
 	image: String
 	title: String
 	description: String
@@ -4340,14 +4339,6 @@ func (ec *executionContext) unmarshalInputEditEvent(ctx context.Context, obj int
 
 	for k, v := range asMap {
 		switch k {
-		case "userID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "image":
 			var err error
 
