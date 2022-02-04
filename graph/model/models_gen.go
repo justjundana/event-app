@@ -49,7 +49,7 @@ type NewComment struct {
 }
 
 type NewEvent struct {
-	UserID      int       `json:"userID"`
+	UserID      *int      `json:"userID"`
 	Image       string    `json:"image"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`

@@ -67,7 +67,7 @@ input EditUser {
 }
 
 input NewEvent {
-	userID: Int!
+	userID: Int
 	image: String!
 	title: String!
 	description: String!
@@ -131,8 +131,8 @@ type Query {
 type Mutation {
   register(input: NewUser): User!
   
-  updateUser(id: Int!, input: EditUser): Response!
-  deleteUser(id: Int!): Response!
+  updateUser(input: EditUser): Response!
+  deleteUser: Response!
 
   createEvent(input: NewEvent): Response!
   updateEvent(id: Int!, input: EditEvent): Response!

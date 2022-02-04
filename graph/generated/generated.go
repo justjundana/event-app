@@ -75,12 +75,12 @@ type ComplexityRoot struct {
 		DeleteComment     func(childComplexity int, id int) int
 		DeleteEvent       func(childComplexity int, id int) int
 		DeleteParticipant func(childComplexity int, id int) int
-		DeleteUser        func(childComplexity int, id int) int
+		DeleteUser        func(childComplexity int) int
 		Register          func(childComplexity int, input *model.NewUser) int
 		UpdateComment     func(childComplexity int, id int, input *model.EditComment) int
 		UpdateEvent       func(childComplexity int, id int, input *model.EditEvent) int
 		UpdateParticipant func(childComplexity int, id int, input *model.EditParticipant) int
-		UpdateUser        func(childComplexity int, id int, input *model.EditUser) int
+		UpdateUser        func(childComplexity int, input *model.EditUser) int
 	}
 
 	Participant struct {
@@ -123,8 +123,8 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Register(ctx context.Context, input *model.NewUser) (*models.User, error)
-	UpdateUser(ctx context.Context, id int, input *model.EditUser) (*model.Response, error)
-	DeleteUser(ctx context.Context, id int) (*model.Response, error)
+	UpdateUser(ctx context.Context, input *model.EditUser) (*model.Response, error)
+	DeleteUser(ctx context.Context) (*model.Response, error)
 	CreateEvent(ctx context.Context, input *model.NewEvent) (*model.Response, error)
 	UpdateEvent(ctx context.Context, id int, input *model.EditEvent) (*model.Response, error)
 	DeleteEvent(ctx context.Context, id int) (*model.Response, error)
@@ -339,12 +339,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.DeleteUser(childComplexity, args["id"].(int)), true
+		return e.complexity.Mutation.DeleteUser(childComplexity), true
 
 	case "Mutation.register":
 		if e.complexity.Mutation.Register == nil {
@@ -404,7 +399,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(int), args["input"].(*model.EditUser)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(*model.EditUser)), true
 
 	case "Participant.eventID":
 		if e.complexity.Participant.EventID == nil {
@@ -749,7 +744,7 @@ input EditUser {
 }
 
 input NewEvent {
-	userID: Int!
+	userID: Int
 	image: String!
 	title: String!
 	description: String!
@@ -813,8 +808,8 @@ type Query {
 type Mutation {
   register(input: NewUser): User!
   
-  updateUser(id: Int!, input: EditUser): Response!
-  deleteUser(id: Int!): Response!
+  updateUser(input: EditUser): Response!
+  deleteUser: Response!
 
   createEvent(input: NewEvent): Response!
   updateEvent(id: Int!, input: EditEvent): Response!
@@ -927,21 +922,6 @@ func (ec *executionContext) field_Mutation_deleteParticipant_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_register_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1032,24 +1012,15 @@ func (ec *executionContext) field_Mutation_updateParticipant_args(ctx context.Co
 func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 *model.EditUser
+	var arg0 *model.EditUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalOEditUser2ᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋgraphᚋmodelᚐEditUser(ctx, tmp)
+		arg0, err = ec.unmarshalOEditUser2ᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋgraphᚋmodelᚐEditUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1774,7 +1745,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(int), args["input"].(*model.EditUser))
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["input"].(*model.EditUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1807,16 +1778,9 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_deleteUser_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUser(rctx, args["id"].(int))
+		return ec.resolvers.Mutation().DeleteUser(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4592,7 +4556,7 @@ func (ec *executionContext) unmarshalInputNewEvent(ctx context.Context, obj inte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
+			it.UserID, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -30,18 +30,14 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 	return &responseData, err
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model.EditUser) (*_model.Response, error) {
-	user, err := r.userRepository.Profile(id)
-	if err != nil {
-		return nil, errors.New("not found")
-	}
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *_model.EditUser) (*_model.Response, error) {
 	userId := _middleware.ForContext(ctx)
 	if userId == nil {
 		return &_model.Response{}, errors.New("unauthorized")
 	}
-
-	if user.ID != userId.ID {
-		return &_model.Response{Code: 400, Message: "You don't have permission", Success: false}, errors.New("unauthorized")
+	user, err := r.userRepository.Profile(userId.ID)
+	if err != nil {
+		return nil, errors.New("not found")
 	}
 
 	user.Name = *input.Name
@@ -56,19 +52,15 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model
 	return &_model.Response{Code: 200, Message: "Update data Success", Success: true}, updateErr
 }
 
-func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (*_model.Response, error) {
-	user, err := r.userRepository.Profile(id)
-	if err != nil {
-		return nil, errors.New("not found")
-	}
-
+func (r *mutationResolver) DeleteUser(ctx context.Context) (*_model.Response, error) {
 	userId := _middleware.ForContext(ctx)
 	if userId == nil {
 		return &_model.Response{}, errors.New("unauthorized")
 	}
 
-	if user.ID != userId.ID {
-		return &_model.Response{Code: 400, Message: "You don't have permission", Success: false}, errors.New("unauthorized")
+	user, err := r.userRepository.Profile(userId.ID)
+	if err != nil {
+		return nil, errors.New("not found")
 	}
 
 	deleteErr := r.userRepository.DeleteUser(user)
@@ -76,7 +68,23 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (*_model.Resp
 }
 
 func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEvent) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	fmt.Println("date", input.Date)
+	eventData := _models.Event{}
+	eventData.UserID = userId.ID
+	eventData.Title = input.Title
+	eventData.Image = input.Image
+	eventData.Description = input.Description
+	eventData.Location = input.Location
+	eventData.Date = input.Date
+	eventData.Quota = input.Quota
+
+	createErr := r.eventRepository.CreateEvent(eventData)
+	return &_model.Response{Code: 200, Message: "Create event Success", Success: true}, createErr
 }
 
 func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_model.EditEvent) (*_model.Response, error) {
