@@ -55,3 +55,8 @@ func (r *UserRepository) UpdateUser(user _models.User) error {
 						WHERE id=?`, user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone, user.ID)
 	return err
 }
+
+func (r *UserRepository) DeleteUser(user _models.User) error {
+	_, err := r.db.Exec(`DELETE FROM users	WHERE id=?`, user.ID)
+	return err
+}
