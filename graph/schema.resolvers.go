@@ -29,6 +29,50 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 	return &responseData, err
 }
 
+func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input *_model.EditUser) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEvent) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_model.EditEvent) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) DeleteEvent(ctx context.Context, id int) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) CreateParticipant(ctx context.Context, input *_model.NewParticipant) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) UpdateParticipant(ctx context.Context, id int, input *_model.EditParticipant) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) DeleteParticipant(ctx context.Context, id int) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) CreateComment(ctx context.Context, input *_model.NewComment) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) UpdateComment(ctx context.Context, id int, input *_model.EditComment) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) DeleteComment(ctx context.Context, id int) (*_model.Response, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
 	user, err := r.userRepository.Login(email)
 	if err != nil {
