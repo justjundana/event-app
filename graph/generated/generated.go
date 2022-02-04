@@ -749,7 +749,7 @@ input NewEvent {
 	title: String!
 	description: String!
 	location: String!
-	date: Time!
+	date: String!
 	quota: Int!
 }
 
@@ -4596,7 +4596,7 @@ func (ec *executionContext) unmarshalInputNewEvent(ctx context.Context, obj inte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-			it.Date, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			it.Date, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	_generated "github.com/justjundana/event-planner/graph/generated"
 	_model "github.com/justjundana/event-planner/graph/model"
@@ -80,14 +81,19 @@ func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEve
 	eventData.Image = input.Image
 	eventData.Description = input.Description
 	eventData.Location = input.Location
-	eventData.Date = input.Date
+	t, _ := time.Parse("2006-01-02 15:04:05", input.Date)
+	eventData.Date = t
 	eventData.Quota = input.Quota
-
+	fmt.Println("time", t)
 	createErr := r.eventRepository.CreateEvent(eventData)
 	return &_model.Response{Code: 200, Message: "Create event Success", Success: true}, createErr
 }
 
 func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_model.EditEvent) (*_model.Response, error) {
+	// userId := _middleware.ForContext(ctx)
+	// if userId == nil {
+	// 	return &_model.Response{}, errors.New("unauthorized")
+	// }
 	panic(fmt.Errorf("not implemented"))
 }
 
