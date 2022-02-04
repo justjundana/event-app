@@ -146,7 +146,18 @@ func (r *mutationResolver) DeleteParticipant(ctx context.Context, id int) (*_mod
 }
 
 func (r *mutationResolver) CreateComment(ctx context.Context, input *_model.NewComment) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	comment := _models.Comment{}
+	comment.EventID = input.EventID
+	comment.UserID = userId.ID
+	comment.Content = input.Content
+
+	createErr := r.commentRepository.CreateComment(comment)
+	return &_model.Response{Code: http.StatusOK, Message: "Create comment Success", Success: true}, createErr
 }
 
 func (r *mutationResolver) UpdateComment(ctx context.Context, id int, input *_model.EditComment) (*_model.Response, error) {
