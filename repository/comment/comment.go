@@ -39,3 +39,21 @@ func (r *CommentRepository) GetComments(eventID int) ([]_models.Comment, error) 
 
 	return comments, nil
 }
+
+func (r *CommentRepository) CreateComment(comment _models.Comment) error {
+	query := `INSERT INTO comments (event_id, user_id, content) VALUES (?, ?, ?)`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(comment.EventID, comment.UserID, comment.Content)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
