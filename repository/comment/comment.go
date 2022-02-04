@@ -70,3 +70,21 @@ func (r *CommentRepository) CreateComment(comment _models.Comment) error {
 
 	return nil
 }
+
+func (r *CommentRepository) UpdateComment(comment _models.Comment) error {
+	query := `UPDATE comments SET event_id = ?, user_id = ?, content = ? WHERE id = ?`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(comment.EventID, comment.UserID, comment.Content, comment.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
