@@ -2,7 +2,6 @@ package user
 
 import (
 	"database/sql"
-	"fmt"
 
 	_models "github.com/justjundana/event-planner/models"
 )
@@ -36,7 +35,6 @@ func (r *UserRepository) Login(email string) (_models.User, error) {
 }
 
 func (r *UserRepository) Profile(id int) (_models.User, error) {
-	fmt.Println(id)
 	row := r.db.QueryRow(`SELECT id, name, email, password, address, occupation, phone FROM users WHERE id = ?;`, id)
 
 	var user _models.User
