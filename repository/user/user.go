@@ -46,3 +46,10 @@ func (r *UserRepository) Profile(id int) (_models.User, error) {
 
 	return user, nil
 }
+
+func (r *UserRepository) UpdateUser(user _models.User) error {
+	_, err := r.db.Exec(`UPDATE users 
+						SET name=?, email=?, password=?, address=?, occupation, phone
+						WHERE id=?`, user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone, user.ID)
+	return err
+}
