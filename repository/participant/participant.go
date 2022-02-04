@@ -39,3 +39,35 @@ func (r *ParticipantRepository) GetParticipants(eventID int) ([]_models.Particip
 
 	return participants, nil
 }
+
+func (r *ParticipantRepository) CheckParticipant(userID int, eventID int) (_models.Participant, error) {
+	var participant _models.Participant
+
+	row := r.db.QueryRow(`SELECT COUNT(user_id) as data FROM participants WHERE user_id = ? AND event_id = ? GROUP BY user_id`, userID, eventID)
+
+	err := row.Scan(&participant.UserID)
+	if err != nil {
+		return participant, err
+	}
+
+	return participant, nil
+}
+
+func (r *ParticipantRepository) CreateParticipant(participant _models.Participant) error {
+	query := `INSERT INTO participants (event_id, user_id, status) VALUES (?, ?, ?)`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(participant.EventID, participant.UserID, participant.Status)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
