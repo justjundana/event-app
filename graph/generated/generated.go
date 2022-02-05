@@ -100,17 +100,18 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetComments      func(childComplexity int, eventID int) int
-		GetEvent         func(childComplexity int, id int) int
-		GetEventKeyword  func(childComplexity int, search string) int
-		GetEventLocation func(childComplexity int, search string) int
-		GetEvents        func(childComplexity int) int
-		GetOwnEvent      func(childComplexity int) int
-		GetParticipants  func(childComplexity int, eventID int) int
-		GetProfile       func(childComplexity int) int
-		GetUser          func(childComplexity int, id int) int
-		GetUsers         func(childComplexity int) int
-		Login            func(childComplexity int, email string, password string) int
+		GetComments           func(childComplexity int, eventID int) int
+		GetEvent              func(childComplexity int, id int) int
+		GetEventKeyword       func(childComplexity int, search string) int
+		GetEventLocation      func(childComplexity int, search string) int
+		GetEventMostAttendant func(childComplexity int) int
+		GetEvents             func(childComplexity int) int
+		GetOwnEvent           func(childComplexity int) int
+		GetParticipants       func(childComplexity int, eventID int) int
+		GetProfile            func(childComplexity int) int
+		GetUser               func(childComplexity int, id int) int
+		GetUsers              func(childComplexity int) int
+		Login                 func(childComplexity int, email string, password string) int
 	}
 
 	Response struct {
@@ -157,6 +158,7 @@ type QueryResolver interface {
 	GetEvent(ctx context.Context, id int) (*models.Event, error)
 	GetEventKeyword(ctx context.Context, search string) ([]*models.Event, error)
 	GetEventLocation(ctx context.Context, search string) ([]*models.Event, error)
+	GetEventMostAttendant(ctx context.Context) ([]*models.Event, error)
 	GetComments(ctx context.Context, eventID int) ([]*models.Comment, error)
 	GetParticipants(ctx context.Context, eventID int) ([]*models.Participant, error)
 }
@@ -552,6 +554,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetEventLocation(childComplexity, args["search"].(string)), true
 
+	case "Query.getEventMostAttendant":
+		if e.complexity.Query.GetEventMostAttendant == nil {
+			break
+		}
+
+		return e.complexity.Query.GetEventMostAttendant(childComplexity), true
+
 	case "Query.getEvents":
 		if e.complexity.Query.GetEvents == nil {
 			break
@@ -902,6 +911,7 @@ type Query {
   getEvent(id: Int!): Event!
   getEventKeyword(search: String!): [Event]!
   getEventLocation(search: String!): [Event]!
+  getEventMostAttendant: [Event]!
 
   getComments(eventID: Int!): [Comment]!
 
@@ -3067,6 +3077,41 @@ func (ec *executionContext) _Query_getEventLocation(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().GetEventLocation(rctx, args["search"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Event)
+	fc.Result = res
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getEventMostAttendant(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetEventMostAttendant(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5921,6 +5966,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getEventLocation(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getEventMostAttendant":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getEventMostAttendant(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

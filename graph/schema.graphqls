@@ -129,6 +129,7 @@ type Query {
   getEvent(id: Int!): Event!
   getEventKeyword(search: String!): [Event]!
   getEventLocation(search: String!): [Event]!
+  getEventMostAttendant: [Event]!
 
   getComments(eventID: Int!): [Comment]!
 
