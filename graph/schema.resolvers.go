@@ -157,8 +157,21 @@ func (r *mutationResolver) UpdateParticipant(ctx context.Context, id int, input 
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) DeleteParticipant(ctx context.Context, id int) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) DeleteParticipant(ctx context.Context, eventID int) (*_model.Response, error) {
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	data, _ := r.participantRepository.GetParticipants(eventID)
+	fmt.Println("ini data", data[1])
+
+	participant := _models.Participant{}
+	participant.EventID = eventID
+	participant.UserID = userId.ID
+
+	deleteErr := r.participantRepository.DeleteParticipant(participant)
+	return &_model.Response{Code: http.StatusOK, Message: "Delete participant Success", Success: true}, deleteErr
 }
 
 func (r *mutationResolver) CreateComment(ctx context.Context, input *_model.NewComment) (*_model.Response, error) {
