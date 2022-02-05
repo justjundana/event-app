@@ -69,5 +69,22 @@ func (r *ParticipantRepository) CreateParticipant(participant _models.Participan
 	}
 
 	return nil
+}
 
+func (r *ParticipantRepository) DeleteParticipant(participant _models.Participant) error {
+	query := `DELETE FROM participants WHERE event_id = ? AND user_id = ?`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(participant.EventID, participant.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
