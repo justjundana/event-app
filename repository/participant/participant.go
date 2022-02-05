@@ -40,6 +40,25 @@ func (r *ParticipantRepository) GetParticipants(eventID int) ([]_models.Particip
 	return participants, nil
 }
 
+func (r *ParticipantRepository) GetParticipant(id int) (_models.Participant, error) {
+	var participant _models.Participant
+	row, err := r.db.Query(`SELECT id, user_id, event_id, status FROM participants WHERE status = 1 AND id = ?`, id)
+	if err != nil {
+		log.Fatalf("Error")
+	}
+
+	defer row.Close()
+
+	for row.Next() {
+		err := row.Scan(&participant.ID, &participant.UserID, &participant.EventID, &participant.Status)
+		if err != nil {
+			log.Fatalf("Error")
+		}
+	}
+
+	return participant, nil
+}
+
 func (r *ParticipantRepository) CheckParticipant(userID int, eventID int) (_models.Participant, error) {
 	var participant _models.Participant
 
@@ -82,6 +101,24 @@ func (r *ParticipantRepository) DeleteParticipant(participant _models.Participan
 	defer statement.Close()
 
 	_, err = statement.Exec(participant.EventID, participant.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *ParticipantRepository) UpdateParticipant(participant _models.Participant) error {
+	query := `UPDATE participants SET status = ?`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(participant.Status)
 	if err != nil {
 		return err
 	}
