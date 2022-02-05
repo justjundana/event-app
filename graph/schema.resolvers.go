@@ -225,7 +225,23 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, id int, input *_mo
 }
 
 func (r *mutationResolver) DeleteComment(ctx context.Context, id int) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		fmt.Println(userId)
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	comment, err := r.commentRepository.GetComment(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	if comment.UserID != userId.ID {
+		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to update this comment", Success: false}, nil
+	}
+
+	deleteErr := r.commentRepository.DeleteComment(comment)
+	return &_model.Response{Code: http.StatusOK, Message: "Delete comment Success", Success: true}, deleteErr
 }
 
 func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
