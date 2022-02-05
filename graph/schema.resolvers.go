@@ -154,7 +154,24 @@ func (r *mutationResolver) CreateParticipant(ctx context.Context, input *_model.
 }
 
 func (r *mutationResolver) UpdateParticipant(ctx context.Context, id int, input *_model.EditParticipant) (*_model.Response, error) {
-	panic(fmt.Errorf("not implemented"))
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return &_model.Response{}, errors.New("unauthorized")
+	}
+
+	participant, err := r.participantRepository.GetParticipant(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	if participant.UserID != userId.ID {
+		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to update this event", Success: false}, nil
+	}
+
+	participant.Status = *input.Status
+
+	updateErr := r.participantRepository.UpdateParticipant(participant)
+	return &_model.Response{Code: http.StatusOK, Message: "Update participant status success", Success: true}, updateErr
 }
 
 func (r *mutationResolver) DeleteParticipant(ctx context.Context, eventID int) (*_model.Response, error) {

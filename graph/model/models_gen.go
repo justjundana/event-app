@@ -43,13 +43,13 @@ type NewComment struct {
 }
 
 type NewEvent struct {
-	UserID      *int   `json:"userID"`
-	Image       string `json:"image"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Location    string `json:"location"`
-	Date        string `json:"date"`
-	Quota       int    `json:"quota"`
+	UserID      *int      `json:"userID"`
+	Image       string    `json:"image"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Location    string    `json:"location"`
+	Date        time.Time `json:"date"`
+	Quota       int       `json:"quota"`
 }
 
 type NewParticipant struct {

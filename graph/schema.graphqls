@@ -72,7 +72,7 @@ input NewEvent {
 	title: String!
 	description: String!
 	location: String!
-	date: String!
+	date: Time!
 	quota: Int!
 }
 
