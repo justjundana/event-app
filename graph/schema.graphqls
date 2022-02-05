@@ -82,6 +82,7 @@ input NewEvent {
 	userID: Int
 	image: String!
 	title: String!
+  category_id: Int!
 	description: String!
 	location: String!
 	date: Time!
@@ -91,6 +92,7 @@ input NewEvent {
 input EditEvent {
 	image: String
 	title: String
+  category_id: Int
 	description: String
 	location: String
 	date: Time

@@ -13,6 +13,7 @@ type EditComment struct {
 type EditEvent struct {
 	Image       *string    `json:"image"`
 	Title       *string    `json:"title"`
+	CategoryID  *int       `json:"category_id"`
 	Description *string    `json:"description"`
 	Location    *string    `json:"location"`
 	Date        *time.Time `json:"date"`
@@ -46,6 +47,7 @@ type NewEvent struct {
 	UserID      *int      `json:"userID"`
 	Image       string    `json:"image"`
 	Title       string    `json:"title"`
+	CategoryID  int       `json:"category_id"`
 	Description string    `json:"description"`
 	Location    string    `json:"location"`
 	Date        time.Time `json:"date"`

@@ -855,6 +855,7 @@ input NewEvent {
 	userID: Int
 	image: String!
 	title: String!
+  category_id: Int!
 	description: String!
 	location: String!
 	date: Time!
@@ -864,6 +865,7 @@ input NewEvent {
 input EditEvent {
 	image: String
 	title: String
+  category_id: Int
 	description: String
 	location: String
 	date: Time
@@ -4861,6 +4863,14 @@ func (ec *executionContext) unmarshalInputEditEvent(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "category_id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category_id"))
+			it.CategoryID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "description":
 			var err error
 
@@ -5046,6 +5056,14 @@ func (ec *executionContext) unmarshalInputNewEvent(ctx context.Context, obj inte
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "category_id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category_id"))
+			it.CategoryID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
