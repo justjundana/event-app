@@ -78,6 +78,7 @@ func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEve
 	eventData := _models.Event{}
 	eventData.UserID = userId.ID
 	eventData.Title = input.Title
+	eventData.CategoryId = input.CategoryID
 	eventData.Image = input.Image
 	eventData.Description = input.Description
 	eventData.Location = input.Location
@@ -105,6 +106,7 @@ func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_mode
 
 	event.Image = *input.Image
 	event.Title = *input.Title
+	event.CategoryId = *input.CategoryID
 	event.Description = *input.Description
 	event.Location = *input.Location
 	event.Date = *input.Date
@@ -345,6 +347,7 @@ func (r *queryResolver) GetOwnEvent(ctx context.Context) ([]*_models.Event, erro
 			UserID:      data.UserID,
 			Image:       data.Image,
 			Title:       data.Title,
+			CategoryId:  data.CategoryId,
 			Description: data.Description,
 			Location:    data.Location,
 			Date:        data.Date,
@@ -369,6 +372,7 @@ func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error)
 			UserID:      data.UserID,
 			Image:       data.Image,
 			Title:       data.Title,
+			CategoryId:  data.CategoryId,
 			Description: data.Description,
 			Location:    data.Location,
 			Date:        data.Date,
@@ -402,6 +406,7 @@ func (r *queryResolver) GetEventKeyword(ctx context.Context, search string) ([]*
 			UserID:      data.UserID,
 			Image:       data.Image,
 			Title:       data.Title,
+			CategoryId:  data.CategoryId,
 			Description: data.Description,
 			Location:    data.Location,
 			Date:        data.Date,
@@ -426,6 +431,7 @@ func (r *queryResolver) GetEventLocation(ctx context.Context, search string) ([]
 			UserID:      data.UserID,
 			Image:       data.Image,
 			Title:       data.Title,
+			CategoryId:  data.CategoryId,
 			Description: data.Description,
 			Location:    data.Location,
 			Date:        data.Date,
