@@ -21,6 +21,9 @@ type User {
   address: String!
   occupation: String!
   phone: String!
+  createdAt: Time!
+  updatedAt: Time!
+  deletedAt: Time!
 }
 
 type Event {
@@ -32,6 +35,9 @@ type Event {
   location: String!
   date: Time!
   quota: Int!
+  createdAt: Time!
+  updatedAt: Time!
+  deletedAt: Time!
 }
 
 type Comment {
@@ -39,6 +45,9 @@ type Comment {
   userID: Int!
   eventID: Int!
   content: String!
+  createdAt: Time!
+  updatedAt: Time!
+  deletedAt: Time!
 }
 
 type Participant {
@@ -46,6 +55,9 @@ type Participant {
   eventID: Int!
   userID: Int!
   status: Boolean!
+  createdAt: Time!
+  updatedAt: Time!
+  deletedAt: Time!
 }
 
 input NewUser {
