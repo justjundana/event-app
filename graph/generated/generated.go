@@ -56,6 +56,7 @@ type ComplexityRoot struct {
 	}
 
 	Event struct {
+		CategoryId  func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		Date        func(childComplexity int) int
 		DeletedAt   func(childComplexity int) int
@@ -226,6 +227,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Comment.UserID(childComplexity), true
+
+	case "Event.categoryID":
+		if e.complexity.Event.CategoryId == nil {
+			break
+		}
+
+		return e.complexity.Event.CategoryId(childComplexity), true
 
 	case "Event.createdAt":
 		if e.complexity.Event.CreatedAt == nil {
@@ -811,6 +819,7 @@ type User {
 type Event {
   id: ID!
   userID: Int
+  categoryID: Int!
   image: String!
   title: String!
   description: String!
@@ -864,7 +873,7 @@ input NewEvent {
 	userID: Int
 	image: String!
 	title: String!
-  category_id: Int!
+  categoryID: Int!
 	description: String!
 	location: String!
 	date: Time!
@@ -874,7 +883,7 @@ input NewEvent {
 input EditEvent {
 	image: String
 	title: String
-  category_id: Int
+  categoryID: Int
 	description: String
 	location: String
 	date: Time
@@ -1614,6 +1623,41 @@ func (ec *executionContext) _Event_userID(ctx context.Context, field graphql.Col
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalOInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Event_categoryID(ctx context.Context, field graphql.CollectedField, obj *models.Event) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Event",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Event_image(ctx context.Context, field graphql.CollectedField, obj *models.Event) (ret graphql.Marshaler) {
@@ -4908,10 +4952,10 @@ func (ec *executionContext) unmarshalInputEditEvent(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "category_id":
+		case "categoryID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category_id"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			it.CategoryID, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
@@ -5104,10 +5148,10 @@ func (ec *executionContext) unmarshalInputNewEvent(ctx context.Context, obj inte
 			if err != nil {
 				return it, err
 			}
-		case "category_id":
+		case "categoryID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category_id"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			it.CategoryID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
@@ -5370,6 +5414,16 @@ func (ec *executionContext) _Event(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Values[i] = innerFunc(ctx)
 
+		case "categoryID":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Event_categoryID(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "image":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Event_image(ctx, field, obj)
