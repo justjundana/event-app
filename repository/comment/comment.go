@@ -88,3 +88,21 @@ func (r *CommentRepository) UpdateComment(comment _models.Comment) error {
 
 	return nil
 }
+
+func (r *CommentRepository) DeleteComment(comment _models.Comment) error {
+	query := `DELETE FROM comments WHERE id = ?`
+
+	statement, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(comment.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
