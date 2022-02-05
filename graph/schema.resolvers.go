@@ -227,7 +227,6 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, id int, input *_mo
 func (r *mutationResolver) DeleteComment(ctx context.Context, id int) (*_model.Response, error) {
 	userId := _middleware.ForContext(ctx)
 	if userId == nil {
-		fmt.Println(userId)
 		return &_model.Response{}, errors.New("unauthorized")
 	}
 
@@ -286,7 +285,26 @@ func (r *queryResolver) GetProfile(ctx context.Context) (*_models.User, error) {
 }
 
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	users := []*_models.User{}
+
+	responseData, err := r.userRepository.GetUsers()
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, data := range responseData {
+		users = append(users, &_models.User{
+			ID:         data.ID,
+			Name:       data.Name,
+			Email:      data.Email,
+			Password:   data.Password,
+			Address:    data.Address,
+			Occupation: data.Occupation,
+			Phone:      data.Phone,
+		})
+	}
+
+	return users, nil
 }
 
 func (r *queryResolver) GetUser(ctx context.Context, id int) (*_models.User, error) {
