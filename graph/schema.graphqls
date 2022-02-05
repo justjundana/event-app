@@ -133,7 +133,7 @@ type Mutation {
 
   createParticipant(input: NewParticipant): Response!
   updateParticipant(id: Int!, input: EditParticipant): Response!
-  deleteParticipant(id: Int!): Response!
+  deleteParticipant(eventID: Int!): Response!
 
   createComment(input: NewComment): Response!
   updateComment(id: Int!, input: EditComment): Response!

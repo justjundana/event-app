@@ -163,9 +163,6 @@ func (r *mutationResolver) DeleteParticipant(ctx context.Context, eventID int) (
 		return &_model.Response{}, errors.New("unauthorized")
 	}
 
-	data, _ := r.participantRepository.GetParticipants(eventID)
-	fmt.Println("ini data", data[1])
-
 	participant := _models.Participant{}
 	participant.EventID = eventID
 	participant.UserID = userId.ID

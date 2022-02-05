@@ -74,7 +74,7 @@ type ComplexityRoot struct {
 		CreateParticipant func(childComplexity int, input *model.NewParticipant) int
 		DeleteComment     func(childComplexity int, id int) int
 		DeleteEvent       func(childComplexity int, id int) int
-		DeleteParticipant func(childComplexity int, id int) int
+		DeleteParticipant func(childComplexity int, eventID int) int
 		DeleteUser        func(childComplexity int) int
 		Register          func(childComplexity int, input *model.NewUser) int
 		UpdateComment     func(childComplexity int, id int, input *model.EditComment) int
@@ -130,7 +130,7 @@ type MutationResolver interface {
 	DeleteEvent(ctx context.Context, id int) (*model.Response, error)
 	CreateParticipant(ctx context.Context, input *model.NewParticipant) (*model.Response, error)
 	UpdateParticipant(ctx context.Context, id int, input *model.EditParticipant) (*model.Response, error)
-	DeleteParticipant(ctx context.Context, id int) (*model.Response, error)
+	DeleteParticipant(ctx context.Context, eventID int) (*model.Response, error)
 	CreateComment(ctx context.Context, input *model.NewComment) (*model.Response, error)
 	UpdateComment(ctx context.Context, id int, input *model.EditComment) (*model.Response, error)
 	DeleteComment(ctx context.Context, id int) (*model.Response, error)
@@ -332,7 +332,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteParticipant(childComplexity, args["id"].(int)), true
+		return e.complexity.Mutation.DeleteParticipant(childComplexity, args["eventID"].(int)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -810,7 +810,7 @@ type Mutation {
 
   createParticipant(input: NewParticipant): Response!
   updateParticipant(id: Int!, input: EditParticipant): Response!
-  deleteParticipant(id: Int!): Response!
+  deleteParticipant(eventID: Int!): Response!
 
   createComment(input: NewComment): Response!
   updateComment(id: Int!, input: EditComment): Response!
@@ -904,14 +904,14 @@ func (ec *executionContext) field_Mutation_deleteParticipant_args(ctx context.Co
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["eventID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventID"))
 		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["id"] = arg0
+	args["eventID"] = arg0
 	return args, nil
 }
 
@@ -2025,7 +2025,7 @@ func (ec *executionContext) _Mutation_deleteParticipant(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteParticipant(rctx, args["id"].(int))
+		return ec.resolvers.Mutation().DeleteParticipant(rctx, args["eventID"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
