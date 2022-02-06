@@ -19,6 +19,13 @@ import (
 
 func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
 	userData := _models.User{}
+	checkEmail, errCheck := r.userRepository.Login(input.Email)
+	if errCheck != nil {
+		return nil, errCheck
+	}
+	if checkEmail.Email == input.Email {
+		return nil, errors.New("email is already exist")
+	}
 	userData.Name = input.Name
 	userData.Email = input.Email
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
