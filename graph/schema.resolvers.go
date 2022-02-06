@@ -392,35 +392,10 @@ func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, e
 	return &responseData, nil
 }
 
-func (r *queryResolver) GetEventKeyword(ctx context.Context, search string) ([]*_models.Event, error) {
+func (r *queryResolver) GetEventsBySearch(ctx context.Context, search string) ([]*_models.Event, error) {
 	events := []*_models.Event{}
 
-	responseData, err := r.eventRepository.GetEventKeyword(search)
-	if err != nil {
-		return nil, errors.New("not found")
-	}
-
-	for _, data := range responseData {
-		events = append(events, &_models.Event{
-			ID:          data.ID,
-			UserID:      data.UserID,
-			Image:       data.Image,
-			Title:       data.Title,
-			CategoryId:  data.CategoryId,
-			Description: data.Description,
-			Location:    data.Location,
-			Date:        data.Date,
-			Quota:       data.Quota,
-		})
-	}
-
-	return events, nil
-}
-
-func (r *queryResolver) GetEventLocation(ctx context.Context, search string) ([]*_models.Event, error) {
-	events := []*_models.Event{}
-
-	responseData, err := r.eventRepository.GetEventLocation(search)
+	responseData, err := r.eventRepository.SearchEvents(search)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
