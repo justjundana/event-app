@@ -104,9 +104,10 @@ type ComplexityRoot struct {
 		GetComments           func(childComplexity int, eventID int) int
 		GetEvent              func(childComplexity int, id int) int
 		GetEventMostAttendant func(childComplexity int) int
-		GetEvents             func(childComplexity int, limit *int, offset *int, joinable bool) int
 		GetEventsBySearch     func(childComplexity int, search string) int
+		GetJoinableEvents     func(childComplexity int) int
 		GetOwnEvent           func(childComplexity int) int
+		GetPaginationEvents   func(childComplexity int, limit *int, offset *int) int
 		GetParticipants       func(childComplexity int, eventID int) int
 		GetParticipateEvent   func(childComplexity int) int
 		GetProfile            func(childComplexity int) int
@@ -156,7 +157,8 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id int) (*models.User, error)
 	GetOwnEvent(ctx context.Context) ([]*models.Event, error)
 	GetParticipateEvent(ctx context.Context) ([]*models.Event, error)
-	GetEvents(ctx context.Context, limit *int, offset *int, joinable bool) ([]*models.Event, error)
+	GetPaginationEvents(ctx context.Context, limit *int, offset *int) ([]*models.Event, error)
+	GetJoinableEvents(ctx context.Context) ([]*models.Event, error)
 	GetEvent(ctx context.Context, id int) (*models.Event, error)
 	GetEventsBySearch(ctx context.Context, search string) ([]*models.Event, error)
 	GetEventMostAttendant(ctx context.Context) ([]*models.Event, error)
@@ -545,18 +547,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetEventMostAttendant(childComplexity), true
 
-	case "Query.getEvents":
-		if e.complexity.Query.GetEvents == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getEvents_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetEvents(childComplexity, args["limit"].(*int), args["offset"].(*int), args["joinable"].(bool)), true
-
 	case "Query.getEventsBySearch":
 		if e.complexity.Query.GetEventsBySearch == nil {
 			break
@@ -569,12 +559,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetEventsBySearch(childComplexity, args["search"].(string)), true
 
+	case "Query.getJoinableEvents":
+		if e.complexity.Query.GetJoinableEvents == nil {
+			break
+		}
+
+		return e.complexity.Query.GetJoinableEvents(childComplexity), true
+
 	case "Query.getOwnEvent":
 		if e.complexity.Query.GetOwnEvent == nil {
 			break
 		}
 
 		return e.complexity.Query.GetOwnEvent(childComplexity), true
+
+	case "Query.getPaginationEvents":
+		if e.complexity.Query.GetPaginationEvents == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getPaginationEvents_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetPaginationEvents(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.getParticipants":
 		if e.complexity.Query.GetParticipants == nil {
@@ -918,7 +927,8 @@ type Query {
   getOwnEvent: [Event]!
   getParticipateEvent: [Event]!
   
-  getEvents(limit:Int, offset:Int, joinable:Boolean!): [Event]!
+  getPaginationEvents(limit:Int, offset:Int): [Event]!
+  getJoinableEvents: [Event]!
   getEvent(id: Int!): Event!
   getEventsBySearch(search: String!): [Event]!
   getEventMostAttendant: [Event]!
@@ -1207,7 +1217,7 @@ func (ec *executionContext) field_Query_getEventsBySearch_args(ctx context.Conte
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getEvents_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_getPaginationEvents_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -1228,15 +1238,6 @@ func (ec *executionContext) field_Query_getEvents_args(ctx context.Context, rawA
 		}
 	}
 	args["offset"] = arg1
-	var arg2 bool
-	if tmp, ok := rawArgs["joinable"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("joinable"))
-		arg2, err = ec.unmarshalNBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["joinable"] = arg2
 	return args, nil
 }
 
@@ -3030,7 +3031,7 @@ func (ec *executionContext) _Query_getParticipateEvent(ctx context.Context, fiel
 	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getEvents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_getPaginationEvents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3047,7 +3048,7 @@ func (ec *executionContext) _Query_getEvents(ctx context.Context, field graphql.
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getEvents_args(ctx, rawArgs)
+	args, err := ec.field_Query_getPaginationEvents_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -3055,7 +3056,42 @@ func (ec *executionContext) _Query_getEvents(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetEvents(rctx, args["limit"].(*int), args["offset"].(*int), args["joinable"].(bool))
+		return ec.resolvers.Query().GetPaginationEvents(rctx, args["limit"].(*int), args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Event)
+	fc.Result = res
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋjustjundanaᚋeventᚑplannerᚋmodelsᚐEvent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getJoinableEvents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetJoinableEvents(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5983,7 +6019,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "getEvents":
+		case "getPaginationEvents":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -5992,7 +6028,30 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getEvents(ctx, field)
+				res = ec._Query_getPaginationEvents(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getJoinableEvents":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getJoinableEvents(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
