@@ -53,31 +53,18 @@ func (r *EventRepository) GetEvent(id int) (_models.Event, error) {
 	return event, nil
 }
 
-func (r *EventRepository) GetEventKeyword(keyword string) ([]_models.Event, error) {
+func (r *EventRepository) SearchEvents(keyword string) ([]_models.Event, error) {
 	var events []_models.Event
-	rows, err := r.db.Query(`SELECT id, user_id, image, title,category_id, description, location, date, quota FROM events WHERE title LIKE ? `, "%"+keyword+"%")
-	if err != nil {
-		log.Fatalf("Error")
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var event _models.Event
-
-		err := rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
-		if err != nil {
-			log.Fatalf("Error")
-		}
-
-		events = append(events, event)
-	}
-
-	return events, nil
-}
-
-func (r *EventRepository) GetEventLocation(location string) ([]_models.Event, error) {
-	var events []_models.Event
-	rows, err := r.db.Query(`SELECT id, user_id, image, title,category_id, description, location, date, quota FROM events WHERE location LIKE ?`, "%"+location+"%")
+	rows, err := r.db.Query(`
+	SELECT 
+		id, user_id, image, title,category_id, description, location, date, quota 
+	FROM
+		events 
+	WHERE 
+		CURRENT_TIMESTAMP < date AND (title LIKE ? OR location LIKE ?)
+	ORDER BY
+		date DESC
+		`, "%"+keyword+"%", "%"+keyword+"%")
 	if err != nil {
 		log.Fatalf("Error")
 	}
