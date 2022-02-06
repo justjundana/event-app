@@ -48,13 +48,25 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *_model.EditUse
 		return nil, errors.New("not found")
 	}
 
-	user.Name = *input.Name
-	user.Email = *input.Email
-	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.MinCost)
-	user.Password = string(passwordHash)
-	user.Address = *input.Address
-	user.Occupation = *input.Occupation
-	user.Phone = *input.Phone
+	if input.Name != nil {
+		user.Name = *input.Name
+	}
+	if input.Email != nil {
+		user.Email = *input.Email
+	}
+	if input.Password != nil {
+		passwordHash, _ := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.MinCost)
+		user.Password = string(passwordHash)
+	}
+	if input.Address != nil {
+		user.Address = *input.Address
+	}
+	if input.Occupation != nil {
+		user.Occupation = *input.Occupation
+	}
+	if input.Phone != nil {
+		user.Phone = *input.Phone
+	}
 
 	updateErr := r.userRepository.UpdateUser(user)
 	return &_model.Response{Code: 200, Message: "Update data Success", Success: true}, updateErr
@@ -111,13 +123,27 @@ func (r *mutationResolver) UpdateEvent(ctx context.Context, id int, input *_mode
 		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to update this event", Success: false}, nil
 	}
 
-	event.Image = *input.Image
-	event.Title = *input.Title
-	event.CategoryId = *input.CategoryID
-	event.Description = *input.Description
-	event.Location = *input.Location
-	event.Date = *input.Date
-	event.Quota = *input.Quota
+	if input.Image != nil {
+		event.Image = *input.Image
+	}
+	if input.Title != nil {
+		event.Title = *input.Title
+	}
+	if input.CategoryID != nil {
+		event.CategoryId = *input.CategoryID
+	}
+	if input.Description != nil {
+		event.Description = *input.Description
+	}
+	if input.Location != nil {
+		event.Location = *input.Location
+	}
+	if input.Date != nil {
+		event.Date = *input.Date
+	}
+	if input.Quota != nil {
+		event.Quota = *input.Quota
+	}
 
 	updateErr := r.eventRepository.UpdateEvent(event)
 	return &_model.Response{Code: http.StatusOK, Message: "Update event Success", Success: true}, updateErr
@@ -227,7 +253,9 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, id int, input *_mo
 		return &_model.Response{Code: http.StatusForbidden, Message: "you don't have permission to update this comment", Success: false}, nil
 	}
 
-	comment.Content = *input.Content
+	if input.Content != nil {
+		comment.Content = *input.Content
+	}
 
 	updateErr := r.commentRepository.UpdateComment(comment)
 	return &_model.Response{Code: http.StatusOK, Message: "Update comment Success", Success: true}, updateErr
