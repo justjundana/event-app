@@ -387,14 +387,37 @@ func (r *queryResolver) GetParticipateEvent(ctx context.Context) ([]*_models.Eve
 	return events, nil
 }
 
-func (r *queryResolver) GetEvents(ctx context.Context, limit *int, offset *int, joinable bool) ([]*_models.Event, error) {
+func (r *queryResolver) GetPaginationEvents(ctx context.Context, limit *int, offset *int) ([]*_models.Event, error) {
 	events := []*_models.Event{}
 
-	responseData, err := r.eventRepository.GetEvents(limit, offset, joinable)
+	responseData, err := r.eventRepository.Pagination(limit, offset)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
+	for _, data := range responseData {
+		events = append(events, &_models.Event{
+			ID:          data.ID,
+			UserID:      data.UserID,
+			Image:       data.Image,
+			Title:       data.Title,
+			CategoryId:  data.CategoryId,
+			Description: data.Description,
+			Location:    data.Location,
+			Date:        data.Date,
+			Quota:       data.Quota,
+		})
+	}
+
+	return events, nil
+}
+
+func (r *queryResolver) GetJoinableEvents(ctx context.Context) ([]*_models.Event, error) {
+	events := []*_models.Event{}
+	responseData, err := r.eventRepository.GetEvents()
+	if err != nil {
+		return nil, errors.New("not found")
+	}
 	for _, data := range responseData {
 		events = append(events, &_models.Event{
 			ID:          data.ID,
@@ -519,3 +542,16 @@ func (r *Resolver) Query() _generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *queryResolver) GetAllEvents(ctx context.Context) ([]*_models.Event, error) {
+	panic(fmt.Errorf("not implemented"))
+}
