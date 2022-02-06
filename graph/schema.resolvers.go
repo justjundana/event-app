@@ -26,6 +26,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *_model.NewUser) 
 	if checkEmail.Email == input.Email {
 		return nil, errors.New("email is already exist")
 	}
+
 	userData.Name = input.Name
 	userData.Email = input.Email
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
@@ -48,6 +49,9 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *_model.EditUse
 		return nil, errors.New("not found")
 	}
 
+	if input.Avatar != nil {
+		user.Avatar = *input.Avatar
+	}
 	if input.Name != nil {
 		user.Name = *input.Name
 	}
