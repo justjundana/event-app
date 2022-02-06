@@ -2,6 +2,7 @@ package event
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_models "github.com/justjundana/event-planner/models"
@@ -17,66 +18,68 @@ func New(db *sql.DB) *EventRepository {
 	}
 }
 
-func (r *EventRepository) GetEvents(limit, offset *int, joinable bool) ([]_models.Event, error) {
+func (r *EventRepository) GetEvents() ([]_models.Event, error) {
 	var events []_models.Event
-	// default value joinable = false
-	if limit == nil && offset == nil && !joinable {
-		// this condition will run when events joinable
-		rows, err := r.db.Query(`
+	fmt.Println("repo 1")
+	// this condition will run when events joinable
+	rows, err := r.db.Query(`
 		SELECT
-		events.id, events.user_id, events.category_id, events.image, events.title, events.description, events.location, events.date, events.quota,
-		COUNT(participants.event_id) AS NumberOfParticipant
+		events.id, events.user_id, events.category_id, events.image, events.title, events.description, events.location, events.date, events.quota
 		FROM
 			events
 		JOIN 
 			participants ON participants.event_id = events.id
 		WHERE
-			CURRENT_TIMESTAMP < events.date AND NumberOfParticipant < events.quota
+			CURRENT_TIMESTAMP < events.date AND (select COUNT(participants.event_id) AS NumberOfParticipant from events)< events.quota
 		GROUP BY 
 			participants.event_id
 		ORDER BY 
 			events.date ASC`)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatalf("Error")
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event _models.Event
+
+		err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
 		if err != nil {
 			log.Fatalf("Error")
 		}
 
-		defer rows.Close()
+		events = append(events, event)
+	}
+	return events, nil
+}
 
-		for rows.Next() {
-			var event _models.Event
-
-			err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
-			if err != nil {
-				log.Fatalf("Error")
-			}
-
-			events = append(events, event)
-		}
-	} else if limit != nil && offset != nil && joinable {
-		// this condition will run on pagination
-		rows, err := r.db.Query(`
+func (r *EventRepository) Pagination(limit, offset *int) ([]_models.Event, error) {
+	var events []_models.Event
+	// this condition will run on pagination
+	rows, err := r.db.Query(`
 		SELECT 
 			id, user_id, image, title,category_id, description, location, date, quota 
 		FROM 
 			events 
 		ORDER BY id ASC
 		LIMIT ? OFFSET ?`, limit, offset)
+	if err != nil {
+		log.Fatalf("Error")
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event _models.Event
+
+		err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
 		if err != nil {
 			log.Fatalf("Error")
 		}
 
-		defer rows.Close()
-
-		for rows.Next() {
-			var event _models.Event
-
-			err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
-			if err != nil {
-				log.Fatalf("Error")
-			}
-
-			events = append(events, event)
-		}
+		events = append(events, event)
 	}
 
 	return events, nil
