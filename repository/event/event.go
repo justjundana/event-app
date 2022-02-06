@@ -17,24 +17,66 @@ func New(db *sql.DB) *EventRepository {
 	}
 }
 
-func (r *EventRepository) GetEvents() ([]_models.Event, error) {
+func (r *EventRepository) GetEvents(limit, offset *int, joinable bool) ([]_models.Event, error) {
 	var events []_models.Event
-	rows, err := r.db.Query(`SELECT id, user_id, image, title,category_id, description, location, date, quota FROM events ORDER BY id ASC`)
-	if err != nil {
-		log.Fatalf("Error")
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var event _models.Event
-
-		err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
+	// default value joinable = false
+	if limit == nil && offset == nil && !joinable {
+		// this condition will run when events joinable
+		rows, err := r.db.Query(`
+		SELECT
+		events.id, events.user_id, events.category_id, events.image, events.title, events.description, events.location, events.date, events.quota,
+		COUNT(participants.event_id) AS NumberOfParticipant
+		FROM
+			events
+		JOIN 
+			participants ON participants.event_id = events.id
+		WHERE
+			CURRENT_TIMESTAMP < events.date AND NumberOfParticipant < events.quota
+		GROUP BY 
+			participants.event_id
+		ORDER BY 
+			events.date ASC`)
 		if err != nil {
 			log.Fatalf("Error")
 		}
 
-		events = append(events, event)
+		defer rows.Close()
+
+		for rows.Next() {
+			var event _models.Event
+
+			err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
+			if err != nil {
+				log.Fatalf("Error")
+			}
+
+			events = append(events, event)
+		}
+	} else if limit != nil && offset != nil && joinable {
+		// this condition will run on pagination
+		rows, err := r.db.Query(`
+		SELECT 
+			id, user_id, image, title,category_id, description, location, date, quota 
+		FROM 
+			events 
+		ORDER BY id ASC
+		LIMIT ? OFFSET ?`, limit, offset)
+		if err != nil {
+			log.Fatalf("Error")
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+			var event _models.Event
+
+			err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
+			if err != nil {
+				log.Fatalf("Error")
+			}
+
+			events = append(events, event)
+		}
 	}
 
 	return events, nil

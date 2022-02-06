@@ -3,7 +3,7 @@ package event
 import _models "github.com/justjundana/event-planner/models"
 
 type EventInterface interface {
-	GetEvents() ([]_models.Event, error)
+	GetEvents(limit, offset *int, joinable bool) ([]_models.Event, error)
 	GetEvent(id int) (_models.Event, error)
 	SearchEvents(keyword string) ([]_models.Event, error)
 	GetEventMostAttendant() ([]_models.Event, error)
