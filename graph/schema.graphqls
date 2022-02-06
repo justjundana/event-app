@@ -128,7 +128,7 @@ type Query {
   getOwnEvent: [Event]!
   getParticipateEvent: [Event]!
   
-  getEvents: [Event]!
+  getEvents(limit:Int, offset:Int, joinable:Boolean!): [Event]!
   getEvent(id: Int!): Event!
   getEventsBySearch(search: String!): [Event]!
   getEventMostAttendant: [Event]!

@@ -104,7 +104,7 @@ type ComplexityRoot struct {
 		GetComments           func(childComplexity int, eventID int) int
 		GetEvent              func(childComplexity int, id int) int
 		GetEventMostAttendant func(childComplexity int) int
-		GetEvents             func(childComplexity int) int
+		GetEvents             func(childComplexity int, limit *int, offset *int, joinable bool) int
 		GetEventsBySearch     func(childComplexity int, search string) int
 		GetOwnEvent           func(childComplexity int) int
 		GetParticipants       func(childComplexity int, eventID int) int
@@ -156,7 +156,7 @@ type QueryResolver interface {
 	GetUser(ctx context.Context, id int) (*models.User, error)
 	GetOwnEvent(ctx context.Context) ([]*models.Event, error)
 	GetParticipateEvent(ctx context.Context) ([]*models.Event, error)
-	GetEvents(ctx context.Context) ([]*models.Event, error)
+	GetEvents(ctx context.Context, limit *int, offset *int, joinable bool) ([]*models.Event, error)
 	GetEvent(ctx context.Context, id int) (*models.Event, error)
 	GetEventsBySearch(ctx context.Context, search string) ([]*models.Event, error)
 	GetEventMostAttendant(ctx context.Context) ([]*models.Event, error)
@@ -550,7 +550,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetEvents(childComplexity), true
+		args, err := ec.field_Query_getEvents_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetEvents(childComplexity, args["limit"].(*int), args["offset"].(*int), args["joinable"].(bool)), true
 
 	case "Query.getEventsBySearch":
 		if e.complexity.Query.GetEventsBySearch == nil {
@@ -912,7 +917,8 @@ type Query {
 
   getOwnEvent: [Event]!
   getParticipateEvent: [Event]!
-  getEvents: [Event]!
+  
+  getEvents(limit:Int, offset:Int, joinable:Boolean!): [Event]!
   getEvent(id: Int!): Event!
   getEventsBySearch(search: String!): [Event]!
   getEventMostAttendant: [Event]!
@@ -1198,6 +1204,39 @@ func (ec *executionContext) field_Query_getEventsBySearch_args(ctx context.Conte
 		}
 	}
 	args["search"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getEvents_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	var arg2 bool
+	if tmp, ok := rawArgs["joinable"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("joinable"))
+		arg2, err = ec.unmarshalNBoolean2bool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["joinable"] = arg2
 	return args, nil
 }
 
@@ -3007,9 +3046,16 @@ func (ec *executionContext) _Query_getEvents(ctx context.Context, field graphql.
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getEvents_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetEvents(rctx)
+		return ec.resolvers.Query().GetEvents(rctx, args["limit"].(*int), args["offset"].(*int), args["joinable"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

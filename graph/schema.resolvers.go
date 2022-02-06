@@ -387,10 +387,10 @@ func (r *queryResolver) GetParticipateEvent(ctx context.Context) ([]*_models.Eve
 	return events, nil
 }
 
-func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error) {
+func (r *queryResolver) GetEvents(ctx context.Context, limit *int, offset *int, joinable bool) ([]*_models.Event, error) {
 	events := []*_models.Event{}
 
-	responseData, err := r.eventRepository.GetEvents()
+	responseData, err := r.eventRepository.GetEvents(limit, offset, joinable)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
