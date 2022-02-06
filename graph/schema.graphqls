@@ -126,6 +126,8 @@ type Query {
   getUser(id: Int!): User!
 
   getOwnEvent: [Event]!
+  getParticipateEvent: [Event]!
+  
   getEvents: [Event]!
   getEvent(id: Int!): Event!
   getEventsBySearch(search: String!): [Event]!

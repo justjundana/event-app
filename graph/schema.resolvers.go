@@ -358,6 +358,35 @@ func (r *queryResolver) GetOwnEvent(ctx context.Context) ([]*_models.Event, erro
 	return events, nil
 }
 
+func (r *queryResolver) GetParticipateEvent(ctx context.Context) ([]*_models.Event, error) {
+	userId := _middleware.ForContext(ctx)
+	if userId == nil {
+		return []*_models.Event{}, errors.New("unauthorized")
+	}
+
+	events := []*_models.Event{}
+
+	responseData, err := r.eventRepository.GetParticipateEvent(userId.ID)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, data := range responseData {
+		events = append(events, &_models.Event{
+			ID:          data.ID,
+			Image:       data.Image,
+			Title:       data.Title,
+			CategoryId:  data.CategoryId,
+			Description: data.Description,
+			Location:    data.Location,
+			Date:        data.Date,
+			Quota:       data.Quota,
+		})
+	}
+
+	return events, nil
+}
+
 func (r *queryResolver) GetEvents(ctx context.Context) ([]*_models.Event, error) {
 	events := []*_models.Event{}
 

@@ -144,6 +144,37 @@ func (r *EventRepository) GetOwnEvent(userID int) ([]_models.Event, error) {
 	return events, nil
 }
 
+func (r *EventRepository) GetParticipateEvent(userID int) ([]_models.Event, error) {
+	var events []_models.Event
+	rows, err := r.db.Query(`
+	SELECT 
+		events.id, events.image, events.title, events.category_id, events.description, events.location, events.date, events.quota 
+	FROM 
+		events 
+	JOIN 
+		participants ON participants.event_id = events.id
+	WHERE 
+		participants.status = TRUE AND participants.user_id = ?`, userID)
+	if err != nil {
+		log.Fatalf("Error")
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event _models.Event
+
+		err := rows.Scan(&event.ID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
+		if err != nil {
+			log.Fatalf("Error")
+		}
+
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
 func (r *EventRepository) CreateEvent(event _models.Event) error {
 	_, err := r.db.Exec("INSERT INTO events(user_id, image, title,category_id, description, location, date, quota) VALUES(?,?,?,?,?,?,?,?)", event.UserID, event.Image, event.Title, event.CategoryId, event.Description, event.Location, event.Date, event.Quota)
 	return err
