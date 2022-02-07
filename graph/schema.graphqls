@@ -37,6 +37,7 @@ type Event {
   location: String!
   date: Time!
   quota: Int!
+  user: User!
   createdAt: Time!
   updatedAt: Time!
   deletedAt: Time!
