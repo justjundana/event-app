@@ -3,6 +3,7 @@ package comment
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	_models "github.com/justjundana/event-planner/models"
 )
@@ -64,7 +65,7 @@ func (r *CommentRepository) GetComment(id int) (_models.Comment, error) {
 }
 
 func (r *CommentRepository) CreateComment(comment _models.Comment) error {
-	query := `INSERT INTO comments (event_id, user_id, content) VALUES (?, ?, ?)`
+	query := `INSERT INTO comments (event_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`
 
 	statement, err := r.db.Prepare(query)
 	if err != nil {
@@ -73,7 +74,7 @@ func (r *CommentRepository) CreateComment(comment _models.Comment) error {
 
 	defer statement.Close()
 
-	_, err = statement.Exec(comment.EventID, comment.UserID, comment.Content)
+	_, err = statement.Exec(comment.EventID, comment.UserID, comment.Content, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -82,7 +83,7 @@ func (r *CommentRepository) CreateComment(comment _models.Comment) error {
 }
 
 func (r *CommentRepository) UpdateComment(comment _models.Comment) error {
-	query := `UPDATE comments SET event_id = ?, user_id = ?, content = ? WHERE id = ?`
+	query := `UPDATE comments SET event_id = ?, user_id = ?, content = ?, updated_at = ? WHERE id = ?`
 
 	statement, err := r.db.Prepare(query)
 	if err != nil {
@@ -91,7 +92,7 @@ func (r *CommentRepository) UpdateComment(comment _models.Comment) error {
 
 	defer statement.Close()
 
-	_, err = statement.Exec(comment.EventID, comment.UserID, comment.Content, comment.ID)
+	_, err = statement.Exec(comment.EventID, comment.UserID, comment.Content, time.Now(), comment.ID)
 	if err != nil {
 		return err
 	}

@@ -73,8 +73,8 @@ func (r *UserRepository) GetUsers() ([]_models.User, error) {
 
 func (r *UserRepository) UpdateUser(user _models.User) error {
 	_, err := r.db.Exec(`UPDATE users 
-						SET name=?, email=?, password=?, address=?, occupation=?, phone=?
-						WHERE id=?`, user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone, user.ID)
+						SET name = ?, email = ?, password = ?, address = ?, occupation =?, phone = ?, updated_at = CURRENT_TIMESTAMP
+						WHERE id = ?`, user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone, user.ID)
 	return err
 }
 
