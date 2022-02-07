@@ -472,9 +472,46 @@ func (r *queryResolver) GetJoinableEvents(ctx context.Context) ([]*_models.Event
 }
 
 func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, error) {
-	responseData, err := r.eventRepository.GetEvent(id)
+	event, err := r.eventRepository.GetEvent(id)
 	if err != nil {
 		return nil, errors.New("not found")
+	}
+
+	responseData := _models.Event{
+		ID:          event.ID,
+		UserID:      event.UserID,
+		Image:       event.Image,
+		Title:       event.Title,
+		CategoryId:  event.CategoryId,
+		Description: event.Description,
+		Location:    event.Location,
+		Date:        event.Date,
+		Quota:       event.Quota,
+		User: _models.User{
+			ID:         event.User.ID,
+			Avatar:     event.User.Avatar,
+			Name:       event.User.Name,
+			Email:      event.User.Email,
+			Address:    event.User.Address,
+			Occupation: event.User.Occupation,
+			Phone:      event.User.Phone,
+		},
+	}
+
+	comments, err := r.commentRepository.GetComments(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, comment := range comments {
+		comment := _models.Comment{
+			ID:      comment.ID,
+			EventID: comment.EventID,
+			UserID:  comment.UserID,
+			Content: comment.Content,
+		}
+
+		responseData.Comments = append(responseData.Comments, comment)
 	}
 
 	return &responseData, nil
