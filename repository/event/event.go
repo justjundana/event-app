@@ -2,7 +2,6 @@ package event
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_models "github.com/justjundana/event-planner/models"
@@ -35,7 +34,6 @@ func (r *EventRepository) GetEvents() ([]_models.Event, error) {
 		ORDER BY 
 			events.date ASC`)
 	if err != nil {
-		fmt.Println(err)
 		log.Fatalf("Error")
 	}
 
