@@ -18,7 +18,7 @@ func New(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) Register(user _models.User) (_models.User, error) {
-	_, err := r.db.Exec("INSERT INTO users(name,email,password,address,occupation,phone) VALUES(?,?,?,?,?,?)", user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone)
+	_, err := r.db.Exec("INSERT INTO users(avatar, name, email, password, address, occupation, phone) VALUES(?, ?, ?, ?, ?, ?, ?)", "http://cdn.onlinewebfonts.com/svg/img_569204.png", user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone)
 	return user, err
 }
 
