@@ -20,7 +20,6 @@ func New(db *sql.DB) *EventRepository {
 
 func (r *EventRepository) GetEvents() ([]_models.Event, error) {
 	var events []_models.Event
-	fmt.Println("repo 1")
 	// this condition will run when events joinable
 	rows, err := r.db.Query(`
 		SELECT
@@ -45,7 +44,7 @@ func (r *EventRepository) GetEvents() ([]_models.Event, error) {
 	for rows.Next() {
 		var event _models.Event
 
-		err = rows.Scan(&event.ID, &event.UserID, &event.Image, &event.Title, &event.CategoryId, &event.Description, &event.Location, &event.Date, &event.Quota)
+		err = rows.Scan(&event.ID, &event.UserID, &event.CategoryId, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
 		if err != nil {
 			log.Fatalf("Error")
 		}
