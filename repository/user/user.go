@@ -38,7 +38,7 @@ func (r *UserRepository) CheckEmail(userChecked _models.User) (_models.User, err
 }
 
 func (r *UserRepository) Register(user _models.User) (_models.User, error) {
-	_, err := r.db.Exec("INSERT INTO users(name,email,password,address,occupation,phone) VALUES(?,?,?,?,?,?)", user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone)
+	_, err := r.db.Exec("INSERT INTO users(avatar, name, email, password, address, occupation, phone) VALUES(?, ?, ?, ?, ?, ?, ?)", "http://cdn.onlinewebfonts.com/svg/img_569204.png", user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone)
 	return user, err
 }
 
@@ -93,8 +93,8 @@ func (r *UserRepository) GetUsers() ([]_models.User, error) {
 
 func (r *UserRepository) UpdateUser(user _models.User) error {
 	_, err := r.db.Exec(`UPDATE users 
-						SET name=?, email=?, password=?, address=?, occupation=?, phone=?
-						WHERE id=?`, user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone, user.ID)
+						SET name = ?, email = ?, password = ?, address = ?, occupation =?, phone = ?, updated_at = CURRENT_TIMESTAMP
+						WHERE id = ?`, user.Name, user.Email, user.Password, user.Address, user.Occupation, user.Phone, user.ID)
 	return err
 }
 
