@@ -501,6 +501,22 @@ func (r *queryResolver) GetEvent(ctx context.Context, id int) (*_models.Event, e
 		},
 	}
 
+	comments, err := r.commentRepository.GetComments(id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	for _, comment := range comments {
+		comment := _models.Comment{
+			ID:      comment.ID,
+			EventID: comment.EventID,
+			UserID:  comment.UserID,
+			Content: comment.Content,
+		}
+
+		responseData.Comments = append(responseData.Comments, comment)
+	}
+
 	return &responseData, nil
 }
 
