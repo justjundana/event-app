@@ -14,6 +14,7 @@ type Event struct {
 	Location    string    `json:"location" form:"location"`
 	Date        time.Time `json:"date" form:"date"`
 	Quota       int       `json:"quota" form:"quota"`
+	User        User      `json:"user" form:"user"`
 	CreatedAt   time.Time `json:"created_at" form:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" form:"updated_at"`
 	DeletedAt   time.Time `json:"deleted_at" form:"deleted_at"`
