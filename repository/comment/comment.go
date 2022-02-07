@@ -17,6 +17,7 @@ func New(db *sql.DB) *CommentRepository {
 	}
 }
 
+// get all comments
 func (r *CommentRepository) GetComments(eventID int) ([]_models.Comment, error) {
 	var comments []_models.Comment
 
