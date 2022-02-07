@@ -58,6 +58,7 @@ type Participant {
   id: ID!
   eventID: Int!
   userID: Int!
+  user: User!
   status: Boolean!
   createdAt: Time!
   updatedAt: Time!
