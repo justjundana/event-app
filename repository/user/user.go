@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_models "github.com/justjundana/event-planner/models"
@@ -15,6 +16,25 @@ func New(db *sql.DB) *UserRepository {
 	return &UserRepository{
 		db: db,
 	}
+}
+
+func (r *UserRepository) CheckEmail(userChecked _models.User) (_models.User, error) {
+	user := _models.User{}
+	result, err := r.db.Query("SELECT email FROM users WHERE email=?", userChecked.Email)
+	if err != nil {
+		return user, err
+	}
+	defer result.Close()
+	if isExist := result.Next(); isExist {
+		return user, fmt.Errorf("user already exist")
+	}
+
+	if user.Email != userChecked.Email {
+		// usernya belum ada
+		return user, nil
+	}
+
+	return user, nil
 }
 
 func (r *UserRepository) Register(user _models.User) (_models.User, error) {
