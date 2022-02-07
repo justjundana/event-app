@@ -38,6 +38,7 @@ type Event {
   date: Time!
   quota: Int!
   user: User!
+  comments: [Comment]
   createdAt: Time!
   updatedAt: Time!
   deletedAt: Time!
@@ -48,7 +49,6 @@ type Comment {
   userID: Int!
   eventID: Int!
   content: String!
-  user: User!
   createdAt: Time!
   updatedAt: Time!
   deletedAt: Time!
