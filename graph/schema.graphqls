@@ -48,6 +48,7 @@ type Comment {
   userID: Int!
   eventID: Int!
   content: String!
+  user: User!
   createdAt: Time!
   updatedAt: Time!
   deletedAt: Time!

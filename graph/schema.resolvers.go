@@ -546,6 +546,7 @@ func (r *queryResolver) GetComments(ctx context.Context, eventID int) ([]*_model
 			ID:      data.ID,
 			EventID: data.EventID,
 			UserID:  data.UserID,
+			User:    data.User,
 			Content: data.Content,
 		})
 	}
