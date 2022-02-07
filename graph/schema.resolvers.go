@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -97,7 +96,6 @@ func (r *mutationResolver) CreateEvent(ctx context.Context, input *_model.NewEve
 		return &_model.Response{}, errors.New("unauthorized")
 	}
 
-	fmt.Println("date", input.Date)
 	eventData := _models.Event{}
 	eventData.UserID = userId.ID
 	eventData.Title = input.Title
@@ -287,7 +285,6 @@ func (r *mutationResolver) DeleteComment(ctx context.Context, id int) (*_model.R
 func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
 	user, err := r.userRepository.Login(email)
 	if err != nil {
-		fmt.Println(err)
 		return nil, errors.New("not found")
 	}
 
@@ -567,6 +564,7 @@ func (r *queryResolver) GetParticipants(ctx context.Context, eventID int) ([]*_m
 			ID:      data.ID,
 			EventID: data.EventID,
 			UserID:  data.UserID,
+			User:    data.User,
 			Status:  data.Status,
 		})
 	}
