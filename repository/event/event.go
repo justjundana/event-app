@@ -18,6 +18,31 @@ func New(db *sql.DB) *EventRepository {
 	}
 }
 
+func (r *EventRepository) CheckEventAvailable(id int) (_models.Event, error) {
+	var event _models.Event
+
+	row := r.db.QueryRow(`
+	SELECT
+		events.id, events.user_id, events.category_id, events.image, events.title, events.description, events.location, events.date, events.quota
+	FROM
+		events
+	RIGHT JOIN 
+		participants ON participants.event_id = events.id
+	WHERE
+		CURRENT_TIMESTAMP < events.date AND events.id = ?
+	GROUP BY 
+		events.id
+	HAVING 
+		COUNT(participants.event_id) < events.quota`, id)
+
+	err := row.Scan(&event.ID, &event.UserID, &event.CategoryId, &event.Image, &event.Title, &event.Description, &event.Location, &event.Date, &event.Quota)
+	if err != nil {
+		return event, err
+	}
+
+	return event, nil
+}
+
 func (r *EventRepository) GetEvents() ([]_models.Event, error) {
 	var events []_models.Event
 	// this condition will run when events joinable
